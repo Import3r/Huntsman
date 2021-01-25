@@ -43,7 +43,7 @@ def verify_ready(target_arg, github_token):
             exit()
 
 
-def enum_subdoms(target_arg, token):
+def enum_subdoms(target_arg, token, blacklist_arg):
     # fire up amass, github subdomain enumerator
     print("Running 'Amass' script...")
     time.sleep(1)
@@ -73,6 +73,10 @@ def enum_subdoms(target_arg, token):
     time.sleep(1)
     total_subdoms_set = set([element for element in (amass_subdoms + github_subdoms).split('\n') if re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', element) != None])
     
+    # remove blacklisted assets
+    blacklist_set = set(blacklist_arg.split(','))
+    total_subdoms_set.difference_update(blacklist_set)
+
     # narrow down results to valid subdomains with unique destinations
     unique_dest_set = set()
     valid_subdoms_set = set()
@@ -102,10 +106,13 @@ def main():
     # checking for proper usage of tool
     try:
         target_arg = arg[1]
-        blacklist_arg = arg[2]
-        github_token = arg[3]
+        github_token = arg[2]
+        try:
+            blacklist_arg = arg[3]
+        except:
+            blacklist_arg = ''
     except:
-        print('usage: ' + arg[0] + ' <target domain>' + ' <subdomain blacklist>' + ' <github token>')
+        print('usage: ' + arg[0] + ' target_domains' + ' github token' + ' [subdomain_blacklist]')
         print('\nNote: comma separate multi-inputs')
         exit()
 
@@ -121,7 +128,7 @@ def main():
 
     # collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
-    unique_subdomains = enum_subdoms(target_arg, github_token)
+    unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
     print('\n\nHUNTING SUBDOMAINS => COMPLETE')
     time.sleep(2)
     
