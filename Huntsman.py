@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from tools_path import amass
+from tools_path import *
 from sys import argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
