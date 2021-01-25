@@ -112,7 +112,7 @@ def main():
         except:
             blacklist_arg = ''
     except:
-        print('usage: ' + arg[0] + ' target_domains' + ' github token' + ' [subdomain_blacklist]')
+        print('usage: ' + arg[0] + ' TARGET_DOMAINS' + ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
         print('\nNote: comma separate multi-inputs')
         exit()
 
