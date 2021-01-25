@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-import tools_path
+from tools_path import amass
 from sys import argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
@@ -15,33 +15,23 @@ banner = """
 """
 BASE_DIR = 'huntsman_results/'
 
-
-def check_prop_use():
-    try:
-        target_arg = arg[1]
-        github_token = arg[2]
-        try:
-            blacklist_arg = arg[3]
-        except:
-            blacklist_arg = ''
-    except:
-        print('usage: ' + arg[0] + ' TARGET_DOMAINS' + ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
-        print('\nNote: comma separate multi-inputs')
-        exit()
-
-
+    
 def verify_ready(target_arg, github_token):
     if not os.path.isfile(amass):
         print("missing 'amass'")
+        print("Please provide the correct path for each tool in 'tools_path.py'.")
         exit()
     if not os.path.isfile(subdomainizer):
         print("missing 'subdomainizer'")
+        print("Please provide the correct path for each tool in 'tools_path.py'.")
         exit()
     if not os.path.isfile(githubSubEnum):
         print("missing 'github Subdomain Enum'")
+        print("Please provide the correct path for each tool in 'tools_path.py'.")
         exit()
     if not os.path.isfile(aquatone):
         print("missing 'Aquatone'")
+        print("Please provide the correct path for each tool in 'tools_path.py'.")
         exit()
     if not requests.get('https://api.github.com/user', headers = {'authorization': 'Bearer ' + github_token}).ok:
         print("Faulty Github token, please provide a valid one")
@@ -116,14 +106,24 @@ def start_routine():
     # collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
     unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
-    print('\n\nHUNTING SUBDOMAINS => COMPLETE')
+    print("\n\nHUNTING SUBDOMAINS => COMPLETE")
     time.sleep(2)
-    
+
 
 def main():
     print(banner)
-    check_prop_use()
-    
+    try:
+        target_arg = arg[1]
+        github_token = arg[2]
+        try:
+            blacklist_arg = arg[3]
+        except:
+            blacklist_arg = ''
+    except:
+        print('usage: ' + arg[0] + ' TARGET_DOMAINS' + ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
+        print('\nNote: comma separate multi-inputs')
+        exit()
+
     # validating provided inputs
     verify_ready(target_arg, github_token)
     
