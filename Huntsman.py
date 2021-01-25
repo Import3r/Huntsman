@@ -19,6 +19,20 @@ banner = """
 BASE_DIR = 'huntsman_results/'
 
 
+def check_prop_use()
+    try:
+        target_arg = arg[1]
+        github_token = arg[2]
+        try:
+            blacklist_arg = arg[3]
+        except:
+            blacklist_arg = ''
+    except:
+        print('usage: ' + arg[0] + ' TARGET_DOMAINS' + ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
+        print('\nNote: comma separate multi-inputs')
+        exit()
+
+
 def verify_ready(target_arg, github_token):
     if not os.path.isfile(amass):
         print("missing 'amass'")
@@ -101,38 +115,30 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     return unique_dest_set
 
 
-def main():
-    print(banner)
-
-    # checking for proper usage of tool
-    try:
-        target_arg = arg[1]
-        github_token = arg[2]
-        try:
-            blacklist_arg = arg[3]
-        except:
-            blacklist_arg = ''
-    except:
-        print('usage: ' + arg[0] + ' TARGET_DOMAINS' + ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
-        print('\nNote: comma separate multi-inputs')
-        exit()
-
-    # checking for previous runs of 'Huntsman'
-    if os.path.isdir(BASE_DIR):
-        print('results directory exists. exiting to avoid loss of previous reports...')
-        exit()
-
-    # validating inputs
-    verify_ready(target_arg, github_token)
-
-    os.mkdir(BASE_DIR)
-
+def start_routine()
     # collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
     unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
     print('\n\nHUNTING SUBDOMAINS => COMPLETE')
     time.sleep(2)
     
+
+def main():
+    print(banner)
+    check_prop_use()
+    
+    # validating provided inputs
+    verify_ready(target_arg, github_token)
+    
+    # checking for previous runs of 'Huntsman'
+    if os.path.isdir(BASE_DIR):
+        print('results directory exists. exiting to avoid loss of previous reports...')
+        exit()
+    else
+        os.mkdir(BASE_DIR)
+
+    start_routine()
+   
 
 # calling main function with KeyboardInterrupt handling
 try:
