@@ -103,6 +103,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
 
 def main():
     print(banner)
+
     # checking for proper usage of tool
     try:
         target_arg = arg[1]
@@ -133,6 +134,7 @@ def main():
     time.sleep(2)
     
 
+# calling main function with KeyboardInterrupt handling
 try:
     os.setpgrp()
     main()
