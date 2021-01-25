@@ -102,7 +102,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     return unique_dest_set
 
 
-def start_routine():
+def start_routine(target_arg, github_token, blacklist_arg):
     # collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
     unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
@@ -134,7 +134,7 @@ def main():
     else:
         os.mkdir(BASE_DIR)
 
-    start_routine()
+    start_routine(target_arg, github_token, blacklist_arg)
    
 
 # calling main function with KeyboardInterrupt handling
