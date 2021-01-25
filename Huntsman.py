@@ -1,14 +1,11 @@
 #! /usr/bin/python3
 
+import tools_path
 from sys import argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
 import os, requests, re, time, signal
 
-amass = '/home/sigma/git_repos/public_tools[RANDOM]/Amass/amass_linux_amd64/amass'
-subdomainizer = '/home/sigma/git_repos/public_tools[RANDOM]/SubDomainizer/SubDomainizer.py'
-githubSubEnum = '/home/sigma/git_repos/public_tools[RANDOM]/github-search/github-subdomains.py'
-aquatone = '/home/sigma/git_repos/public_tools[RANDOM]/aquatone/aquatone'
 banner = """
 
 ▒█░▒█ █░░█ █▀▀▄ ▀▀█▀▀ █▀▀ █▀▄▀█ █▀▀█ █▀▀▄ 
@@ -19,7 +16,7 @@ banner = """
 BASE_DIR = 'huntsman_results/'
 
 
-def check_prop_use()
+def check_prop_use():
     try:
         target_arg = arg[1]
         github_token = arg[2]
@@ -115,7 +112,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     return unique_dest_set
 
 
-def start_routine()
+def start_routine():
     # collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
     unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
@@ -134,7 +131,7 @@ def main():
     if os.path.isdir(BASE_DIR):
         print('results directory exists. exiting to avoid loss of previous reports...')
         exit()
-    else
+    else:
         os.mkdir(BASE_DIR)
 
     start_routine()
