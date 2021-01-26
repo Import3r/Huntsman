@@ -89,7 +89,8 @@ def enum_subdoms(target_arg, token, blacklist_arg):
             print('[+] resolved: ' + subdomain)
         except:
             print('[-] removed: ' + subdomain)
-        
+        time.sleep(1)
+
     # write all resolvable subdomains to file
     print("\nWriting cleaned results to files...")
     time.sleep(1)
