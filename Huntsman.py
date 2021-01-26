@@ -14,8 +14,13 @@ banner = """
 
 """
 BASE_DIR = 'huntsman_results/'
+UNIQUE_SUB_FILE = 'unique-subdomains.all'
+RESOLV_SUB_FILE = 'resolvable-subdomains.all'
+SUB_GIT_FILE = 'subdomains.github'
+SUB_AMASS_FILE = 'subdomains.amass'
+AQUATONE_RES_DIR = 'aquatone_results/'
 
-    
+
 def verify_ready(target_arg, github_token):
     if not os.path.isfile(amass):
         print("missing 'amass'")
@@ -64,10 +69,10 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # write individual subdomain enum results to files
     print("Writing initial results to files...")
     time.sleep(1)
-    with open(BASE_DIR + 'subdomains.github', 'w') as git_file:
-        git_file.write(github_subdoms)
-    with open(BASE_DIR + 'subdomains.amass', 'w') as amass_file:
-        amass_file.write(amass_subdoms)
+    with open(BASE_DIR + SUB_GIT_FILE, 'w') as f:
+        f.write(github_subdoms)
+    with open(BASE_DIR + SUB_AMASS_FILE, 'w') as f:
+        f.write(amass_subdoms)
     
     # clean non valid-subdomain formats
     print("Narrowing down results...")
@@ -94,11 +99,11 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # write all resolvable subdomains to file
     print("\nWriting cleaned results to files...")
     time.sleep(1)
-    with open(BASE_DIR + 'resolvable-subdomains.all', 'w') as valid_subdoms_file:
-        valid_subdoms_file.write('\n'.join(valid_subdoms_set) + '\n')
+    with open(BASE_DIR + RESOLV_SUB_FILE, 'w') as f:
+        f.write('\n'.join(valid_subdoms_set) + '\n')
     # write all subdomains with unique destinations to file
-    with open(BASE_DIR + 'unique-subdomains.all', 'w') as unique_subdoms_file:
-        unique_subdoms_file.write('\n'.join(unique_dest_set) + '\n')
+    with open(BASE_DIR + UNIQUE_SUB_FILE, 'w') as f:
+        f.write('\n'.join(unique_dest_set) + '\n')
 
     return unique_dest_set
 
