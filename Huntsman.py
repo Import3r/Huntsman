@@ -123,7 +123,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     # Use collected subdomains with aquatone
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
-    aquatone_proc = run_async([aquatone, "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR + AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=os.devnull)
+    aquatone_proc = run_async([aquatone, "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR + AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(os.devnull, 'w'))
     
     # Use collected subdomains with subdomainizer
     print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
