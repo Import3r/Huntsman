@@ -19,6 +19,11 @@ RESOLV_SUB_FILE = 'resolvable-subdomains.all'
 SUB_GIT_FILE = 'subdomains.github'
 SUB_AMASS_FILE = 'subdomains.amass'
 AQUATONE_RES_DIR = 'aquatone_results/'
+SBDZ_RES_DIR = 'subdomainizer_results/'
+SBDZ_SECRET_FILE = 'secrets.subdomainizer'
+SBDZ_SUB_FILE = 'subdomains.subdomainizer'
+SBDZ_CLOUD_FILE = 'cloud-services.subdomainizer'
+
 
 
 def verify_ready(target_arg, github_token):
@@ -109,11 +114,30 @@ def enum_subdoms(target_arg, token, blacklist_arg):
 
 
 def start_routine(target_arg, github_token, blacklist_arg):
-    # collect subdomains list with unique destinations
+    # Collect subdomains list with unique destinations
     print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
     unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
     print("\n\nHUNTING SUBDOMAINS => COMPLETE")
     time.sleep(2)
+    
+    # Use collected subdomains with aquatone
+    print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
+    time.sleep(1)
+    aquatone_proc = run_async([aquatone, "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR + AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=os.devnull)
+    
+    # Use collected subdomains with subdomainizer
+    print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
+    time.sleep(1)
+    os.mkdir(BASE_DIR + SBDZ_RES_DIR)
+    SUBDOMS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SUB_FILE
+    SECRETS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SECRET_FILE
+    CLOUD_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_CLOUD_FILE
+    subdomainizer_proc = run_async([subdomainizer, "-l", BASE_DIR + UNIQUE_SUB_FILE, "-o", SUBDOMS_F, "-sop", SECRETS_F, "-cop", CLOUD_F, "-k", "-g", "-gt", github_token])
+    
+    aquatone_proc.wait()
+    subdomainizer_proc.wait()
+    print("\n\n'HUNTSMAN' SEQUENCE => COMPLETE")
+    time.sleep(1)
 
 
 def main():
@@ -139,9 +163,14 @@ def main():
         exit()
     else:
         os.mkdir(BASE_DIR)
-
+    
     start_routine(target_arg, github_token, blacklist_arg)
-   
+    
+    # notify end of routine and exit
+    print("\nOperation successful. All results are stored at '" + BASE_DIR + "'.")
+    print("Shutting down...")
+    time.sleep(2)
+
 
 # calling main function with KeyboardInterrupt handling
 try:
