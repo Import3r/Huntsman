@@ -3,3 +3,4 @@ clean up the code further
 add optional nmap scans for resolved IP addresses [needs further manual experiments first]
 implement gospider routine (to find critical endpoints and interesting URLs)
 Introduce options/switches functionality, to customize routines for defined subdoms vs. a parent subdom, and other uses.
+Add situational fuzzing with wfuzz (or any other) using "PayloadsAllTheThings" Lists from github.
