@@ -1,15 +1,16 @@
 #! /usr/bin/python3
 
-import tools_path
 from sys import argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
 from shutil import which
-import os
+from os import path, mkdir, setpgrp, killpg, devnull
 import requests
 import re
 import time
 import signal
+from default_names import *
+import tools_path
 
 banner = """
 
@@ -18,22 +19,13 @@ banner = """
 ▒█░▒█ ░▀▀▀ ▀░░▀ ░░▀░░ ▀▀▀ ▀░░░▀ ▀░░▀ ▀░░▀
 
 """
-BASE_DIR = 'huntsman_results/'
-UNIQUE_SUB_FILE = 'unique-subdomains.all'
-RESOLV_SUB_FILE = 'resolvable-subdomains.all'
-SUB_GIT_FILE = 'subdomains.github'
-SUB_AMASS_FILE = 'subdomains.amass'
-AQUATONE_RES_DIR = 'aquatone_results/'
-SBDZ_RES_DIR = 'subdomainizer_results/'
-SBDZ_SECRET_FILE = 'secrets.subdomainizer'
-SBDZ_SUB_FILE = 'subdomains.subdomainizer'
-SBDZ_CLOUD_FILE = 'cloud-services.subdomainizer'
+
 tools = {'amass': tools_path.amass, 'SubDomainizer.py': tools_path.subdomainizer,
          'github-subdomains.py': tools_path.githubSubEnum, 'aquatone': tools_path.aquatone}
 
 
 def does_exist(tool):
-    return which(tool) is not None or os.path.exists(tool)
+    return which(tool) is not None or path.exists(tool)
 
 
 def verify_ready(target_arg, github_token):
@@ -136,12 +128,12 @@ def start_routine(target_arg, github_token, blacklist_arg):
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
     aquatone_proc = run_async([tools['aquatone'], "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
-                              AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(os.devnull, 'w'))
+                              AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(devnull, 'w'))
 
     # Use collected subdomains with subdomainizer
     print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
     time.sleep(1)
-    os.mkdir(BASE_DIR + SBDZ_RES_DIR)
+    mkdir(BASE_DIR + SBDZ_RES_DIR)
     SUBDOMS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SUB_FILE
     SECRETS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SECRET_FILE
     CLOUD_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_CLOUD_FILE
@@ -173,11 +165,11 @@ def main():
     verify_ready(target_arg, github_token)
 
     # checking for previous runs of 'Huntsman'
-    if os.path.isdir(BASE_DIR):
+    if path.isdir(BASE_DIR):
         print('results directory exists. exiting to avoid loss of previous reports...')
         exit()
     else:
-        os.mkdir(BASE_DIR)
+        mkdir(BASE_DIR)
 
     start_routine(target_arg, github_token, blacklist_arg)
 
@@ -189,8 +181,8 @@ def main():
 
 # calling main function with KeyboardInterrupt handling
 try:
-    os.setpgrp()
+    setpgrp()
     main()
 except KeyboardInterrupt:
     print("\n\nExiting...")
-    os.killpg(0, signal.SIGKILL)
+    killpg(0, signal.SIGKILL)
