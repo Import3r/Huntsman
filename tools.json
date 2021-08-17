@@ -1,0 +1,22 @@
+{
+    "amass":{
+        "path":"",
+        "apt_package_name":"amass",
+        "remote_repo_url":""
+    },
+    "subdomainizer":{
+        "path":"SubDomainizer.py",
+        "apt_package_name":null,
+        "remote_repo_url":""        
+    },
+    "aquatone":{
+        "path":"",
+        "apt_package_name":null,
+        "remote_repo_url":""        
+    },
+    "github-subdomains":{
+        "path":"github-subdomains.py",
+        "apt_package_name":null,
+        "remote_repo_url":""        
+    }
+}
