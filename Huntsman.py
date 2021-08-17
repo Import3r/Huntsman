@@ -24,6 +24,19 @@ tools = {'amass': tools_path.amass, 'SubDomainizer.py': tools_path.subdomainizer
          'github-subdomains.py': tools_path.githubSubEnum, 'aquatone': tools_path.aquatone}
 
 
+def check_reachable(target_arg):
+    for target in target_arg.split(','):
+        try:
+            requests.head("http://" + target.lstrip('http://'))
+        except:
+            print("Problem with reaching target: '" + target + "'")
+            exit()
+
+
+def valid_github_token(github_token):
+    return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
+
+
 def is_installed(tool):
     return which(tool) is not None or path.exists(tool)
 
@@ -41,16 +54,11 @@ def verify_ready(target_arg, github_token):
             print("missing tool: '" + t + "'")
         exit()
 
-    if not requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok:
+    if not valid_github_token(github_token):
         print("Faulty Github token, please provide a valid one")
         exit()
 
-    for target in target_arg.split(','):
-        try:
-            requests.head("http://" + target.lstrip('http://'))
-        except:
-            print("Problem with reaching target: '" + target + "'")
-            exit()
+    check_reachable(target_arg)
 
 
 def enum_subdoms(target_arg, token, blacklist_arg):
