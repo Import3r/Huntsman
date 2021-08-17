@@ -37,16 +37,16 @@ def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
-def is_installed(tool):
+def tool_installed(tool):
     return which(tool) is not None or path.exists(tool)
 
 
 def verify_ready(target_arg, github_token):
     missing_tools = []
     for tool in tools.keys():
-        if is_installed(tool):
+        if tool_installed(tool):
             tools[tool] = tool
-        elif not is_installed(tools[tool]):
+        elif not tool_installed(tools[tool]):
             missing_tools.append(tool)
 
     if len(missing_tools):
