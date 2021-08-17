@@ -6,11 +6,11 @@ from subprocess import Popen as run_async
 from shutil import which
 from os import path, mkdir, setpgrp, killpg, devnull
 import requests
+import json
 import re
 import time
 import signal
 from default_names import *
-import tools_path
 
 banner = """
 
@@ -20,8 +20,9 @@ banner = """
 
 """
 
-tools = {'amass': tools_path.amass, 'SubDomainizer.py': tools_path.subdomainizer,
-         'github-subdomains.py': tools_path.githubSubEnum, 'aquatone': tools_path.aquatone}
+with open('tools.json', 'r') as tools_file:
+    tools = json.load(tools_file)
+    tools_file.close()
 
 
 def check_reachable(target_arg):
@@ -65,10 +66,10 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # fire up amass, github subdomain enumerator
     print("Running 'Amass' script...")
     time.sleep(1)
-    amass_proc = run_async([tools['amass'], "enum", "-d", target_arg])
+    amass_proc = run_async([tools['amass'].path, "enum", "-d", target_arg])
     print("Running 'github-subdomains' script...")
     time.sleep(1)
-    github_procs = [run_async([tools['github-subdomains.py'], '-t', token, '-d', target], stdout=PIPE)
+    github_procs = [run_async([tools['github-subdomains'].path, '-t', token, '-d', target], stdout=PIPE)
                     for target in target_arg.split(',')]
     github_subdoms = ''
     time.sleep(2)
@@ -77,7 +78,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
         proc.wait()
         github_subdoms += proc.communicate()[0].decode('utf-8').lstrip('\n')
     amass_proc.wait()
-    amass_subdoms = run([tools['amass'], 'db', '-d', target_arg,
+    amass_subdoms = run([tools['amass'].path, 'db', '-d', target_arg,
                         '--names'], capture_output=True).stdout.decode('utf-8')
 
     # write individual subdomain enum results to files
@@ -135,7 +136,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     # Use collected subdomains with aquatone
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
-    aquatone_proc = run_async([tools['aquatone'], "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
+    aquatone_proc = run_async([tools['aquatone'].path, "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
                               AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(devnull, 'w'))
 
     # Use collected subdomains with subdomainizer
@@ -145,7 +146,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     SUBDOMS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SUB_FILE
     SECRETS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SECRET_FILE
     CLOUD_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_CLOUD_FILE
-    subdomainizer_proc = run_async([tools['SubDomainizer.py'], "-l", BASE_DIR + UNIQUE_SUB_FILE,
+    subdomainizer_proc = run_async([tools['subdomainizer'].path, "-l", BASE_DIR + UNIQUE_SUB_FILE,
                                    "-o", SUBDOMS_F, "-sop", SECRETS_F, "-cop", CLOUD_F, "-k", "-g", "-gt", github_token])
 
     aquatone_proc.wait()

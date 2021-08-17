@@ -1,4 +1,0 @@
-amass = ''
-subdomainizer = ''
-githubSubEnum = ''
-aquatone = ''
