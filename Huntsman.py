@@ -24,16 +24,16 @@ tools = {'amass': tools_path.amass, 'SubDomainizer.py': tools_path.subdomainizer
          'github-subdomains.py': tools_path.githubSubEnum, 'aquatone': tools_path.aquatone}
 
 
-def does_exist(tool):
+def is_installed(tool):
     return which(tool) is not None or path.exists(tool)
 
 
 def verify_ready(target_arg, github_token):
     missing_tools = []
     for tool in tools.keys():
-        if does_exist(tool):
+        if is_installed(tool):
             tools[tool] = tool
-        elif not does_exist(tools[tool]):
+        elif not is_installed(tools[tool]):
             missing_tools.append(tool)
 
     if len(missing_tools):
