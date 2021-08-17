@@ -45,9 +45,9 @@ def tool_installed(tool):
 def verify_ready(target_arg, github_token):
     missing_tools = []
     for tool in tools.keys():
-        if tool_installed(tool):
-            tools[tool] = tool
-        elif not tool_installed(tools[tool]):
+        if tool_installed(tools[tool].file_name):
+            tools[tool].path = tool.file_name
+        elif not tool_installed(tools[tool].path):
             missing_tools.append(tool)
 
     if len(missing_tools):
