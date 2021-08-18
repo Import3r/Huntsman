@@ -4,7 +4,7 @@ from sys import executable, argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
 from shutil import which
-from os import makedirs, path, mkdir, setpgrp, killpg, devnull
+from os import chmod, makedirs, path, mkdir, setpgrp, killpg, devnull
 import apt
 import git
 import wget
@@ -35,6 +35,7 @@ def update_json_file():
 
 def update_install_path(tool, path):
     tools[tool]["path"] = path
+    chmod(path, 0o744)
     update_json_file()
 
 
