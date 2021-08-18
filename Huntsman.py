@@ -24,12 +24,13 @@ banner = """
 
 """
 
-tools_file = open('tools.json', 'r+')
-tools = json.load(tools_file)
+with open('tools.json', 'r') as json_file:
+    tools = json.load(json_file)
 
 
 def update_json_file():
-    json.dump(tools, tools_file)
+    with open('tools.json', 'w') as json_file:
+        json.dump(tools, json_file, indent=4)
 
 
 def update_install_path(tool, path):
@@ -334,4 +335,3 @@ try:
 except KeyboardInterrupt:
     print("\n\nExiting...")
     killpg(0, signal.SIGKILL)
-    tools_file.close()
