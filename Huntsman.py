@@ -1,10 +1,14 @@
 #! /usr/bin/python3
 
-from sys import argv as arg
+from sys import executable, argv as arg
 from subprocess import run, PIPE
 from subprocess import Popen as run_async
 from shutil import which
-from os import path, mkdir, setpgrp, killpg, devnull
+from os import makedirs, path, mkdir, setpgrp, killpg, devnull
+import apt
+import git
+import wget
+import zipfile
 import requests
 import json
 import re
@@ -20,9 +24,125 @@ banner = """
 
 """
 
-with open('tools.json', 'r') as tools_file:
-    tools = json.load(tools_file)
-    tools_file.close()
+tools_file = open('tools.json', 'r+')
+tools = json.load(tools_file)
+
+
+def update_json_file():
+    json.dump(tools, tools_file)
+
+
+def update_install_path(tool, path):
+    tools[tool]["path"] = path
+    update_json_file()
+
+
+def install_from_repo(tool):
+    url = tools[tool]["install_url"]
+    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
+    req_name = tools[tool]["req_file_name"]
+    file_name = tools[tool]["file_name"]
+    git.cmd.Git(TOOLS_DIR).clone(url)
+    run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)])
+    update_install_path(tool, path.join(install_path, file_name))
+
+
+def install_compiled(tool):
+    url = tools[tool]["install_url"]
+    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
+    zip_name = tools[tool]["zipfile_name"]
+    file_name = tools[tool]["file_name"]
+    makedirs(install_path, exist_ok=True)
+    wget.download(url, path.join(install_path, zip_name))
+    with zipfile.ZipFile(zip_name, 'r') as zip_file:
+        zip_file.extractall(install_path)
+    update_install_path(tool, path.join(install_path, file_name))
+
+
+def auto_install(required_tools):
+    makedirs(TOOLS_DIR, exist_ok=True)
+    for tool in required_tools:
+        if tools[tool]["install_type"] == "compiled":
+            try:
+                install_compiled(tool)
+            except Exception as e:
+                print("The following exception occured when installing '" + tool + "':")
+                print(e)
+                exit()
+        elif tools[tool]["install_type"] == "from_repo":
+            try:
+                install_from_repo(tool)
+            except Exception as e:
+                print("The following exception occured when installing '" + tool + "':")
+                print(e)
+                exit()
+
+
+def tool_exists(tool):
+    return which(tool) is not None or path.exists(tool)
+
+
+def ask_for_path(tool):
+    while True:
+        path = input("Please enter the full path for '" + tool + "': ")
+        if tool_exists(path):
+            update_install_path(tool, path)
+            return
+        else:
+            print("Invalid path.")
+
+
+def offer_store_paths(required_tools):
+    while True:
+        choice = input("Would you like to enter the path for each tool you have manually? (Y)es, (N)o: ")
+        if choice.upper() == 'Y':
+            for tool in required_tools:
+                ask_for_path(tool)   
+            print("Paths for tools were saved successfully.")
+            return
+        elif choice.upper() == 'N':
+            print("Install the missing tools manually, or run the script again. Bye!")
+            exit()
+        else:
+            print("Please enter 'Y' or 'N' only.")
+        
+
+def offer_install(required_tools):
+    while True:
+        choice = input("Would you like me to pull the remaining tools for you? (Y)es, (N)o, (Q)uit: ")
+        if choice.upper() == 'Y':
+            auto_install(required_tools)
+            return
+        elif choice.upper() == 'N':
+            offer_store_paths(required_tools)
+            return
+        elif choice.upper() == 'Q':
+            print("Install the missing tools manually, or run the script again. Bye!")
+            exit()
+        else:
+            print("Please enter 'Y', 'N', or 'Q' only.")
+         
+
+def exists_in_apt(package_name):
+    return apt.Cache().get(package_name) is not None
+
+
+def warn_missing(missing_tools):
+    apt_message = ""
+    non_apt_tools = set()
+    for missing in missing_tools:
+        print("missing tool: '" + missing + "'")
+        if exists_in_apt(missing):
+            apt_message += "sudo apt-get install " + tools[missing]["apt_package_name"] + "\n"
+        else:
+            non_apt_tools.add(missing)
+
+    if apt_message:
+        print("You can install some missing tools using 'apt-get', by running the following command(s):")
+        print(apt_message)
+    
+    if non_apt_tools:
+        offer_install(non_apt_tools)  
 
 
 def check_reachable(target_arg):
@@ -38,22 +158,16 @@ def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
-def tool_installed(tool):
-    return which(tool) is not None or path.exists(tool)
-
-
 def verify_ready(target_arg, github_token):
-    missing_tools = []
+    missing_tools = set()
     for tool in tools.keys():
-        if tool_installed(tools[tool].file_name):
-            tools[tool].path = tool.file_name
-        elif not tool_installed(tools[tool].path):
-            missing_tools.append(tool)
+        if tool_exists(tools[tool]["file_name"]):
+            tools[tool]["path"] = tools[tool]["file_name"]
+        elif not tool_exists(tools[tool]["path"]):
+            missing_tools.add(tool)
 
-    if len(missing_tools):
-        for t in missing_tools:
-            print("missing tool: '" + t + "'")
-        exit()
+    if missing_tools:
+        warn_missing(missing_tools)
 
     if not valid_github_token(github_token):
         print("Faulty Github token, please provide a valid one")
@@ -66,10 +180,10 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # fire up amass, github subdomain enumerator
     print("Running 'Amass' script...")
     time.sleep(1)
-    amass_proc = run_async([tools['amass'].path, "enum", "-d", target_arg])
+    amass_proc = run_async([tools['amass']["path"], "enum", "-d", target_arg])
     print("Running 'github-subdomains' script...")
     time.sleep(1)
-    github_procs = [run_async([tools['github-subdomains'].path, '-t', token, '-d', target], stdout=PIPE)
+    github_procs = [run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE)
                     for target in target_arg.split(',')]
     github_subdoms = ''
     time.sleep(2)
@@ -78,7 +192,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
         proc.wait()
         github_subdoms += proc.communicate()[0].decode('utf-8').lstrip('\n')
     amass_proc.wait()
-    amass_subdoms = run([tools['amass'].path, 'db', '-d', target_arg,
+    amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg,
                         '--names'], capture_output=True).stdout.decode('utf-8')
 
     # write individual subdomain enum results to files
@@ -136,7 +250,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     # Use collected subdomains with aquatone
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
-    aquatone_proc = run_async([tools['aquatone'].path, "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
+    aquatone_proc = run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
                               AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(devnull, 'w'))
 
     # Use collected subdomains with subdomainizer
@@ -146,7 +260,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     SUBDOMS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SUB_FILE
     SECRETS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SECRET_FILE
     CLOUD_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_CLOUD_FILE
-    subdomainizer_proc = run_async([tools['subdomainizer'].path, "-l", BASE_DIR + UNIQUE_SUB_FILE,
+    subdomainizer_proc = run_async([tools['subdomainizer']["path"], "-l", BASE_DIR + UNIQUE_SUB_FILE,
                                    "-o", SUBDOMS_F, "-sop", SECRETS_F, "-cop", CLOUD_F, "-k", "-g", "-gt", github_token])
 
     aquatone_proc.wait()
@@ -195,3 +309,4 @@ try:
 except KeyboardInterrupt:
     print("\n\nExiting...")
     killpg(0, signal.SIGKILL)
+    tools_file.close()
