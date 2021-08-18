@@ -54,7 +54,7 @@ def install_compiled(tool):
     file_name = tools[tool]["file_name"]
     makedirs(install_path, exist_ok=True)
     wget.download(url, path.join(install_path, zip_name))
-    with zipfile.ZipFile(zip_name, 'r') as zip_file:
+    with zipfile.ZipFile(path.join(install_path, zip_name), 'r') as zip_file:
         zip_file.extractall(install_path)
     update_install_path(tool, path.join(install_path, file_name))
 
