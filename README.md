@@ -1,6 +1,5 @@
 # Huntsman - web application recon and asset discovery
 
-
 ![image](https://user-images.githubusercontent.com/60158098/121773424-8c9aaa00-cb84-11eb-855e-ccbf3fb071b5.png)
 
 ## Description
@@ -28,10 +27,10 @@ git clone https://github.com/Import3r/Huntsman.git
 cd Huntsman
 ```
 
-- Install requirements file:
+- Install needed packages from packages.txt:
 
 ```bash
-python3 -m pip install -r requirements.txt
+xargs -r -a packages.txt sudo apt-get install
 ```
 
 - Run "Huntsman":
