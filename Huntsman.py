@@ -57,8 +57,14 @@ def install_compiled(tool):
     makedirs(install_path, exist_ok=True)
     wget.download(url, path.join(install_path, zip_name))
     with zipfile.ZipFile(path.join(install_path, zip_name), 'r') as zip_file:
+        relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == file_name])
         zip_file.extractall(install_path)
-    update_install_path(tool, path.join(install_path, file_name))
+    final_path = path.join(install_path, relative_path)
+    if path.exists(install_path):
+        update_install_path(tool, path.join(install_path, relative_path))
+    else:
+        print("Failed to properly decompress '" + zip_name + "'\n exiting...")
+        exit()
 
 
 def auto_install(required_tools):
