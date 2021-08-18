@@ -33,9 +33,10 @@ def update_json_file():
         json.dump(tools, json_file, indent=4)
 
 
-def update_install_path(tool, path):
-    tools[tool]["path"] = path
-    chmod(path, 0o744)
+def update_install_path(tool, given_path):
+    full_path = path.abspath(given_path)
+    tools[tool]["path"] = full_path
+    chmod(full_path, 0o744)
     update_json_file()
 
 
@@ -282,8 +283,7 @@ def start_routine(target_arg, github_token, blacklist_arg):
     # Use collected subdomains with aquatone
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
-    aquatone_proc = run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
-                              AQUATONE_RES_DIR], stdin=open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'r'), stdout=open(devnull, 'w'))
+    aquatone_proc = run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", path.join(BASE_DIR, AQUATONE_RES_DIR)], stdin=open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'r'), stdout=open(devnull, 'w'))
 
     # Use collected subdomains with subdomainizer
     print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
