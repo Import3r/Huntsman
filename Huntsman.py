@@ -5,7 +5,6 @@ from subprocess import run, PIPE
 from subprocess import Popen as run_async
 from shutil import which
 from os import chmod, makedirs, path, mkdir, setpgrp, killpg, devnull
-import apt
 import git
 import wget
 import zipfile
@@ -115,7 +114,7 @@ def offer_store_paths(required_tools):
             exit()
         else:
             print("Please enter 'Y' or 'N' only.")
-        
+
 
 def offer_install(required_tools):
     while True:
@@ -133,45 +132,16 @@ def offer_install(required_tools):
             print("Please enter 'Y', 'N', or 'Q' only.")
          
 
-def exists_in_apt(package_name):
-    return apt.Cache().get(package_name) is not None
-
-
-def installed_by_apt(package_name):
-    return apt.Cache().get(package_name).is_installed
-
-
 def check_chromium():
-    pkg_name = "chromium-browser"
-    if installed_by_apt(pkg_name) or tool_exists(pkg_name):
-        return
+    if tool_exists("chromium-browser"): return
     else:
         print("Missing 'chromium-browser' required by 'aquatone'. please install it before running.")           
         exit()
 
 
 def warn_missing(missing_tools):
-    apt_message = ""
-    non_apt_tools = set()
     for missing in missing_tools:
         print("missing tool: '" + missing + "'")
-        if exists_in_apt(missing):
-            apt_message += "sudo apt-get install " + tools[missing]["apt_package_name"] + "\n"
-        else:
-            non_apt_tools.add(missing)
-
-    if non_apt_tools:
-        offer_install(non_apt_tools) 
-
-    if apt_message:
-        print("You can install other missing tools using 'apt-get', by running the following command(s):")
-        print(apt_message)
-        print("Please install them and run the script again.")
-
-
-
-    if apt_message:
-        exit()
 
 
 def check_for_tools():
@@ -186,6 +156,7 @@ def check_for_tools():
 
     if missing_tools:
         warn_missing(missing_tools)
+        offer_install(missing_tools)
 
     print("\n\nReady to engage.\n\n")
 
