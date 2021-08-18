@@ -7,7 +7,7 @@
 
 A python script that utilizes open-source tools to automate my discovery process and recon flow for given target domains/assets. The tools and techniques included are what I usually use in my workflow when testing websites and looking for assets in a provided scope.
 
-## How it works
+## What it does
 
 - Utilizes "Amass" in enum mode to collect subdomains under given domains.
 - Utilizes an open-source tool by [gwen001](https://github.com/gwen001) to perform GitHub-dorking with a GitHub access token to collect more subdomains.
@@ -16,4 +16,28 @@ A python script that utilizes open-source tools to automate my discovery process
 
 ## Setup
 
-Modify the path(s) to your tool(s) in the file "tools_path.py".
+- Clone "Huntsman" from Github:
+
+```bash
+git clone https://github.com/Import3r/Huntsman.git
+```
+
+- Change directory to "Huntsman":
+
+```bash
+cd Huntsman
+```
+
+- Install requirements file:
+
+```bash
+python3 -m pip install -r requirements.txt
+```
+
+- Run "Huntsman":
+
+```bash
+python3 Huntsman.py
+```
+
+Note: running "Huntsman" for the first time may trigger the installer prompt for missing tools.
