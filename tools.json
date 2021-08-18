@@ -7,7 +7,7 @@
         "zipfile_name": "amass.zip",
         "remote_repo_name": "Amass",
         "install_type": "compiled",
-        "install_url": "https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_freebsd_amd64.zip"
+        "install_url": "https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip"
     },
     "subdomainizer": {
         "file_name": "SubDomainizer.py",
