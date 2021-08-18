@@ -1,41 +1,41 @@
 {
-    "amass":{
-        "file_name":"amass",
-        "path":"",
-        "apt_package_name":"amass",
-        "req_file_name":null,
-        "zipfile_name":"amass.zip",
-        "remote_repo_name":"Amass",
-        "install_type":"compiled",
-        "install_url":"https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_freebsd_amd64.zip"
-    }, 
-    "subdomainizer":{
-        "file_name":"SubDomainizer.py",
-        "path":"",
-        "apt_package_name":null,
-        "req_file_name":"requirements.txt",
-        "remote_repo_name":"SubDomainizer",
-        "install_type":"from_repo",
-        "install_url":"https://github.com/nsonaniya2010/SubDomainizer.git"        
+    "amass": {
+        "file_name": "amass",
+        "path": "",
+        "apt_package_name": "amass",
+        "req_file_name": null,
+        "zipfile_name": "amass.zip",
+        "remote_repo_name": "Amass",
+        "install_type": "compiled",
+        "install_url": "https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_freebsd_amd64.zip"
     },
-    "aquatone":{
-        "file_name":"aquatone",
-        "path":"",
-        "apt_package_name":null,
-        "req_file_name":null,
-        "zipfile_name":"aquatone.zip",
-        "remote_repo_name":"aquatone",
-        "install_type":"compiled",
-        "install_url":"https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip"        
+    "subdomainizer": {
+        "file_name": "SubDomainizer.py",
+        "path": "",
+        "apt_package_name": null,
+        "req_file_name": "requirements.txt",
+        "remote_repo_name": "SubDomainizer",
+        "install_type": "from_repo",
+        "install_url": "https://github.com/nsonaniya2010/SubDomainizer.git"
     },
-    "github-subdomains":{
-        "file_name":"github-subdomains.py",
-        "path":"",
-        "apt_package_name":null,
-        "req_file_name":"requirements3.txt",
-        "zipfile_name":null,
-        "remote_repo_name":"github-search",
-        "install_type":"from_repo",
-        "install_url":"https://github.com/gwen001/github-search.git"
+    "aquatone": {
+        "file_name": "aquatone",
+        "path": "",
+        "apt_package_name": null,
+        "req_file_name": null,
+        "zipfile_name": "aquatone.zip",
+        "remote_repo_name": "aquatone",
+        "install_type": "compiled",
+        "install_url": "https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip"
+    },
+    "github-subdomains": {
+        "file_name": "github-subdomains.py",
+        "path": "",
+        "apt_package_name": null,
+        "req_file_name": "requirements3.txt",
+        "zipfile_name": null,
+        "remote_repo_name": "github-search",
+        "install_type": "from_repo",
+        "install_url": "https://github.com/gwen001/github-search.git"
     }
 }
