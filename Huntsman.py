@@ -43,7 +43,8 @@ def install_from_repo(tool):
     install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
     req_name = tools[tool]["req_file_name"]
     file_name = tools[tool]["file_name"]
-    git.cmd.Git(TOOLS_DIR).clone(url)
+    if not path.exists(install_path):
+        git.cmd.Git(TOOLS_DIR).clone(url)
     run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)])
     update_install_path(tool, path.join(install_path, file_name))
 
