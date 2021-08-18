@@ -164,10 +164,21 @@ def warn_missing(missing_tools):
 
     if apt_message:
         exit()
-    
 
-def check_reachable(target_arg):
-    for target in target_arg.split(','):
+
+def check_for_tools():
+    missing_tools = set()
+    for tool in tools.keys():
+        if tool_exists(tools[tool]["file_name"]):
+            tools[tool]["path"] = tools[tool]["file_name"]
+        elif not tool_exists(tools[tool]["path"]):
+            missing_tools.add(tool)
+
+    if missing_tools:
+        warn_missing(missing_tools)
+
+
+def check_reachable(target):
         try:
             requests.head("http://" + target.lstrip('http://'))
         except:
@@ -179,22 +190,13 @@ def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
-def verify_ready(target_arg, github_token):
-    missing_tools = set()
-    for tool in tools.keys():
-        if tool_exists(tools[tool]["file_name"]):
-            tools[tool]["path"] = tools[tool]["file_name"]
-        elif not tool_exists(tools[tool]["path"]):
-            missing_tools.add(tool)
-
-    if missing_tools:
-        warn_missing(missing_tools)
-
+def verify_args(target_arg, github_token):
     if not valid_github_token(github_token):
         print("Faulty Github token, please provide a valid one")
         exit()
 
-    check_reachable(target_arg)
+    for target in target_arg.split(','):
+        check_reachable(target)
 
 
 def enum_subdoms(target_arg, token, blacklist_arg):
@@ -306,7 +308,9 @@ def main():
         exit()
 
     # validating provided inputs
-    verify_ready(target_arg, github_token)
+    verify_args(target_arg, github_token)
+
+    check_for_tools()
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(BASE_DIR):
