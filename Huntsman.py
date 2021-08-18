@@ -198,9 +198,9 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # write individual subdomain enum results to files
     print("Writing initial results to files...")
     time.sleep(1)
-    with open(BASE_DIR + SUB_GIT_FILE, 'w') as f:
+    with open(path.join(BASE_DIR, SUB_GIT_FILE), 'w') as f:
         f.write(github_subdoms)
-    with open(BASE_DIR + SUB_AMASS_FILE, 'w') as f:
+    with open(path.join(BASE_DIR, SUB_AMASS_FILE), 'w') as f:
         f.write(amass_subdoms)
 
     # clean non valid-subdomain formats
@@ -231,10 +231,10 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     # write all resolvable subdomains to file
     print("\nWriting cleaned results to files...")
     time.sleep(1)
-    with open(BASE_DIR + RESOLV_SUB_FILE, 'w') as f:
+    with open(path.join(BASE_DIR, RESOLV_SUB_FILE), 'w') as f:
         f.write('\n'.join(valid_subdoms_set) + '\n')
     # write all subdomains with unique destinations to file
-    with open(BASE_DIR + UNIQUE_SUB_FILE, 'w') as f:
+    with open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'w') as f:
         f.write('\n'.join(unique_dest_set) + '\n')
 
     return unique_dest_set
@@ -251,16 +251,16 @@ def start_routine(target_arg, github_token, blacklist_arg):
     print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
     time.sleep(1)
     aquatone_proc = run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", BASE_DIR +
-                              AQUATONE_RES_DIR], stdin=open(BASE_DIR + UNIQUE_SUB_FILE, 'r'), stdout=open(devnull, 'w'))
+                              AQUATONE_RES_DIR], stdin=open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'r'), stdout=open(devnull, 'w'))
 
     # Use collected subdomains with subdomainizer
     print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
     time.sleep(1)
-    mkdir(BASE_DIR + SBDZ_RES_DIR)
-    SUBDOMS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SUB_FILE
-    SECRETS_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_SECRET_FILE
-    CLOUD_F = BASE_DIR + SBDZ_RES_DIR + SBDZ_CLOUD_FILE
-    subdomainizer_proc = run_async([tools['subdomainizer']["path"], "-l", BASE_DIR + UNIQUE_SUB_FILE,
+    mkdir(path.join(BASE_DIR, SBDZ_RES_DIR))
+    SUBDOMS_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
+    SECRETS_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
+    CLOUD_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
+    subdomainizer_proc = run_async([tools['subdomainizer']["path"], "-l", path.join(BASE_DIR, UNIQUE_SUB_FILE),
                                    "-o", SUBDOMS_F, "-sop", SECRETS_F, "-cop", CLOUD_F, "-k", "-g", "-gt", github_token])
 
     aquatone_proc.wait()
