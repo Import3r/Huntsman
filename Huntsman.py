@@ -127,6 +127,15 @@ def exists_in_apt(package_name):
     return apt.Cache().get(package_name) is not None
 
 
+def installed_by_apt(package_name):
+    return apt.Cache().get(package_name).is_installed
+
+
+def chromium_installed():
+    pkg_name = "chromium-browser"
+    return installed_by_apt(pkg_name) or tool_exists(pkg_name) 
+
+
 def warn_missing(missing_tools):
     apt_message = ""
     non_apt_tools = set()
@@ -137,13 +146,25 @@ def warn_missing(missing_tools):
         else:
             non_apt_tools.add(missing)
 
-    if apt_message:
-        print("You can install some missing tools using 'apt-get', by running the following command(s):")
-        print(apt_message)
-    
     if non_apt_tools:
-        offer_install(non_apt_tools)  
+        offer_install(non_apt_tools) 
 
+    if apt_message:
+        print("You can install other missing tools using 'apt-get', by running the following command(s):")
+        print(apt_message)
+        print("Please install them and run the script again.")
+
+    if not chromium_installed():
+        print("Missing 'chromium' browser which is needed for 'aquatone'. please install it before running.")
+        if exists_in_apt("chromium-browser"):
+            print("You can install 'chromium' using 'apt-get', by running the following command:")
+            print("sudo apt-get install chromium-browser")
+            print("Please install it and run the script again.")            
+        exit()
+
+    if apt_message:
+        exit()
+    
 
 def check_reachable(target_arg):
     for target in target_arg.split(','):
