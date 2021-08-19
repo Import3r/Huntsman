@@ -30,7 +30,7 @@ cd Huntsman
 - Install needed packages from packages.txt:
 
 ```bash
-xargs -r -a packages.txt sudo apt-get install
+xargs -r -a packages.txt sudo apt-get install -y
 ```
 
 - Run "Huntsman":
