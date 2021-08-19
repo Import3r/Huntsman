@@ -2,9 +2,10 @@
 
 from sys import executable, argv as arg
 from subprocess import run, PIPE
-from subprocess import Popen as run_async
+from subprocess import STDOUT, Popen as run_async
 from shutil import which
-from os import chmod, makedirs, path, mkdir, setpgrp, killpg, devnull
+from os import path, chmod, makedirs, mkdir, geteuid, setpgrp, killpg, devnull
+import apt
 import git
 import wget
 import zipfile
@@ -44,9 +45,10 @@ def install_from_repo(tool):
     install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
     req_name = tools[tool]["req_file_name"]
     file_name = tools[tool]["file_name"]
+    
     if not path.exists(install_path):
         git.cmd.Git(TOOLS_DIR).clone(url)
-    run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)])
+    run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)], stderr=STDOUT)
     update_install_path(tool, path.join(install_path, file_name))
 
 
@@ -55,6 +57,7 @@ def install_compiled(tool):
     install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
     zip_name = tools[tool]["zipfile_name"]
     file_name = tools[tool]["file_name"]
+
     makedirs(install_path, exist_ok=True)
     wget.download(url, path.join(install_path, zip_name))
     with zipfile.ZipFile(path.join(install_path, zip_name), 'r') as zip_file:
@@ -85,6 +88,10 @@ def auto_install(required_tools):
                 print("The following exception occured when installing '" + tool + "':")
                 print(e)
                 exit()
+
+
+def available_in_apt(pkg_name):
+    return apt.Cache().get(pkg_name) is not None
 
 
 def tool_exists(tool):
@@ -130,13 +137,38 @@ def offer_install(required_tools):
             exit()
         else:
             print("Please enter 'Y', 'N', or 'Q' only.")
-         
 
-def check_chromium():
-    if tool_exists("chromium-browser"): return
-    else:
-        print("Missing 'chromium-browser' required by 'aquatone'. please install it before running.")           
+
+def install_browser(package):
+    install_cmd = ["apt-get", "install", package, "-y"]
+    if geteuid() != 0:
+        install_cmd = ["sudo"] + install_cmd
+    try:
+        print("Installing " + package + "...")
+        run(install_cmd, stderr=STDOUT)
+    except Exception as e:
+        print("The following exception occured when installing '" + package + "':")
+        print(e)
         exit()
+
+
+def offer_browser():
+    while True:
+        choice = input("Missing google-chrome/chromium-browser required by 'aquatone'.\nDo you want to install it now? (Y)es, (N)o: ")
+        if choice.upper() == 'Y':
+            if available_in_apt("chromium-browser"):
+                install_browser("chromium-browser")
+                return
+            else:
+                deb_pkg = path.join(TOOLS_DIR, "google-chrome.deb")
+                wget.download("https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", deb_pkg)
+                install_browser("./" + deb_pkg)
+                return
+        elif choice.upper() == 'N':
+            print("Install 'google-chrome' or 'chromium-browser' manually, or run the script again. Bye!")
+            exit()
+        else:
+            print("Please enter 'Y' or 'N' only.")
 
 
 def warn_missing(missing_tools):
@@ -145,14 +177,15 @@ def warn_missing(missing_tools):
 
 
 def check_for_tools():
+    if not tool_exists("chromium-browser") and not tool_exists("google-chrome"):
+        offer_browser()
+
     missing_tools = set()
     for tool in tools.keys():
         if tool_exists(tools[tool]["file_name"]):
             tools[tool]["path"] = tools[tool]["file_name"]
         elif not tool_exists(tools[tool]["path"]):
             missing_tools.add(tool)
-
-    check_chromium()
 
     if missing_tools:
         warn_missing(missing_tools)

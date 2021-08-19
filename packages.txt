@@ -1,5 +1,5 @@
 python3-pip
-chromium-browser
 python3-git
 python3-wget
+python3-apt
 python3-requests
