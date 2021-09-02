@@ -4,8 +4,6 @@
 
 ## Description
 
-The tool aids bug bounty hunters and security testers in their recon workflow by automating the discovery process of target assets and domains, utilizing open-source tools used for web application testing. 
-
 A python script that automates my discovery process and recon workflow for given target domains/assets, by utilizing open-source tools used for web application  testing.
 
 ## What it does
