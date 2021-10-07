@@ -261,7 +261,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
         try:
             response = requests.head("http://" + subdomain, allow_redirects=True)
             valid_subdoms_set.add(subdomain)
-            unique_dest_set.add(response.url.split(':')[1].strip('/').split('/')[0])
+            unique_dest_set.add(re.fullmatch('[A-Za-z]+:\/\/([A-Za-z0-9\-\.]+).*', response.url)[1])
             print('[+] resolved: ' + subdomain)
         except:
             print('[-] removed: ' + subdomain)
