@@ -196,7 +196,7 @@ def check_for_tools():
 
 def check_reachable(target):
         try:
-            requests.head("http://" + target.lstrip('http://'))
+            requests.head("http://" + target.split('http://')[-1])  # Change this to a more reliable method
         except:
             print("Problem with reaching target: '" + target + "'")
             exit()
