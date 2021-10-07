@@ -224,7 +224,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     amass_proc = run_async([tools['amass']["path"], "enum", "-d", target_arg])
     print("Running 'github-subdomains' script...")
     time.sleep(1)
-    github_procs = [(taget, run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE))
+    github_procs = [(target, run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE))
                     for target in target_arg.split(',')]
     github_subdoms = ''
     time.sleep(2)
