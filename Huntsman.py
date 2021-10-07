@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from sys import executable, argv as arg
+from sys import executable, path as here, argv as arg
 from subprocess import run, PIPE
 from subprocess import STDOUT, Popen as run_async
 from shutil import which
@@ -16,6 +16,8 @@ import time
 import signal
 from default_names import *
 
+SCRIPT_DIR_PATH = path.dirname(arg[0])
+
 banner = """
 
 ▒█░▒█ █░░█ █▀▀▄ ▀▀█▀▀ █▀▀ █▀▄▀█ █▀▀█ █▀▀▄ 
@@ -24,12 +26,12 @@ banner = """
 
 """
 
-with open(path.join(getcwd(), 'tools.json'), 'r') as json_file:
+with open(path.join(SCRIPT_DIR_PATH, 'tools.json'), 'r') as json_file:
     tools = json.load(json_file)
 
 
 def update_json_file():
-    with open(path.join(getcwd(), 'tools.json'), 'w') as json_file:
+    with open(path.join(SCRIPT_DIR_PATH, 'tools.json'), 'w') as json_file:
         json.dump(tools, json_file, indent=4)
 
 
