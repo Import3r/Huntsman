@@ -4,7 +4,7 @@ from sys import executable, argv as arg
 from subprocess import run, PIPE
 from subprocess import STDOUT, Popen as run_async
 from shutil import which
-from os import path, chmod, makedirs, mkdir, geteuid, setpgrp, killpg, devnull
+from os import path, chmod, makedirs, mkdir, geteuid, getcwd, setpgrp, killpg, devnull
 import apt
 import git
 import wget
@@ -24,12 +24,12 @@ banner = """
 
 """
 
-with open('tools.json', 'r') as json_file:
+with open(path.join(getcwd(), 'tools.json'), 'r') as json_file:
     tools = json.load(json_file)
 
 
 def update_json_file():
-    with open('tools.json', 'w') as json_file:
+    with open(path.join(getcwd(), 'tools.json'), 'w') as json_file:
         json.dump(tools, json_file, indent=4)
 
 
@@ -222,14 +222,16 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     amass_proc = run_async([tools['amass']["path"], "enum", "-d", target_arg])
     print("Running 'github-subdomains' script...")
     time.sleep(1)
-    github_procs = [run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE)
+    github_procs = [(taget, run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE))
                     for target in target_arg.split(',')]
     github_subdoms = ''
     time.sleep(2)
     print("\nWaiting for initial sequence to conclude, please wait...")
-    for proc in github_procs:
+    for target, proc in github_procs:
         proc.wait()
-        github_subdoms += proc.communicate()[0].decode('utf-8').lstrip('\n')
+        proc_output = proc.communicate()[0].decode('utf-8').lstrip('\n')
+        print("\nFound subdomains on github for the target: " + target)
+        github_subdoms += proc_output
     amass_proc.wait()
     amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg,
                         '--names'], capture_output=True).stdout.decode('utf-8')
@@ -257,11 +259,9 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     valid_subdoms_set = set()
     for subdomain in total_subdoms_set:
         try:
-            response = requests.head(
-                "http://" + subdomain, allow_redirects=True)
+            response = requests.head("http://" + subdomain, allow_redirects=True)
             valid_subdoms_set.add(subdomain)
-            unique_dest_set.add(response.url.split(
-                ':')[1].strip('/').split('/')[0])
+            unique_dest_set.add(response.url.split(':')[1].strip('/').split('/')[0])
             print('[+] resolved: ' + subdomain)
         except:
             print('[-] removed: ' + subdomain)
