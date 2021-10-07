@@ -256,6 +256,9 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     blacklist_set = set(blacklist_arg.split(','))
     total_subdoms_set.difference_update(blacklist_set)
 
+    # add target domains to the set
+    total_subdoms_set.update(set(target_arg.split(',')))
+
     # narrow down results to valid subdomains with unique destinations
     unique_dest_set = set()
     valid_subdoms_set = set()
