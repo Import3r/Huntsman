@@ -232,7 +232,7 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     for target, proc in github_procs:
         proc.wait()
         proc_output = proc.communicate()[0].decode('utf-8').lstrip('\n')
-        print("\nFound subdomains on github for the target: " + target)
+        print("\nFinding subdomains on github for the target: " + target)
         github_subdoms += proc_output
     amass_proc.wait()
     amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg,
