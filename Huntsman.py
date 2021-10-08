@@ -196,123 +196,150 @@ def check_for_tools():
     print("\n\nReady to engage.\n\n")
 
 
-def check_reachable(target):
+def reachable(target):
         try:
             requests.head("http://" + target.split('http://')[-1])  # Change this to a more reliable method
+            return True
         except:
-            print("Problem with reaching target: '" + target + "'")
-            exit()
+            return False
 
 
 def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
-def verify_args(target_arg, github_token):
+def verify_github_token(github_token):
     if not valid_github_token(github_token):
         print("Faulty Github token, please provide a valid one")
         exit()
 
+
+def verify_reachable_targets(target_arg):
     for target in target_arg.split(','):
-        check_reachable(target)
+        if not reachable(target):
+            print("Problem with reaching target: '" + target + "'")
+            exit()
 
 
-def enum_subdoms(target_arg, token, blacklist_arg):
-    # fire up amass, github subdomain enumerator
-    print("Running 'Amass' script...")
+def subdomainizer(github_token):
+    mkdir(path.join(BASE_DIR, SBDZ_RES_DIR))
+    SUBDOMS_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
+    SECRETS_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
+    CLOUD_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
+    return run_async([tools['subdomainizer']["path"], "-l", path.join(BASE_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k", "-g", "-gt", github_token])
+
+
+def aquatone():
+    OUTPUT_DIR = path.join(BASE_DIR, AQUATONE_RES_DIR)
+    SUBDOMAINS_FILE = path.join(BASE_DIR, UNIQUE_SUB_FILE)
+    return run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", OUTPUT_DIR], stdin=open(SUBDOMAINS_FILE, 'r'), stdout=open(devnull, 'w'))
+
+
+def amass(target_arg):
+    return run_async([tools['amass']["path"], "enum", "-d", target_arg])
+
+
+def github_subdomains(target, token):
+    return run([tools['github-subdomains']["path"], '-t', token, '-d', target], capture_output=True).stdout.decode('utf-8')
+
+
+def amass_subdomains(target_arg):
+    return run([tools['amass']["path"], 'db', '-d', target_arg, '--names'], capture_output=True).stdout.decode('utf-8')
+
+
+def subdomains(target_arg, token):
+    print("\nFiring 'Amass' to hunt subdomains...")
     time.sleep(1)
-    amass_proc = run_async([tools['amass']["path"], "enum", "-d", target_arg])
-    print("Running 'github-subdomains' script...")
+    amass_proc = amass(target_arg)
+
+    print("\nHunting subdomains on GitHub...")
     time.sleep(1)
     github_subdoms = ''
     for target in target_arg.split(','):
         print("\nWaiting for Amass...")
-        gh_proc_out = run([tools['github-subdomains']["path"], '-t', token, '-d', target], capture_output=True).stdout.decode('utf-8') 
+        result = github_subdomains(target, token) 
         print("\nAttempted to find subdomains on github for '" + target + "':")
-        print(gh_proc_out)
-        github_subdoms += gh_proc_out
+        print(result)
+        github_subdoms += result
+        time.sleep(1)
     print("\nFinished enumerating github. Waiting for Amass to finish...")
+    
     amass_proc.wait()
     print("\nRetrived Amass subdomains:")
-    amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg, '--names'], capture_output=True).stdout.decode('utf-8')
+    amass_subdoms = amass_subdomains(target_arg)
     print(amass_subdoms)
 
     # write individual subdomain enum results to files
-    print("Writing initial results to files...")
+    print("Writing enumeration results to files...")
     time.sleep(1)
     with open(path.join(BASE_DIR, SUB_GIT_FILE), 'w') as f:
         f.write(github_subdoms)
     with open(path.join(BASE_DIR, SUB_AMASS_FILE), 'w') as f:
         f.write(amass_subdoms)
 
-    # clean non valid-subdomain formats
-    print("Narrowing down results...")
-    time.sleep(1)
-    total_subdoms_set = set([element for element in (amass_subdoms + github_subdoms).split(
-        '\n') if re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', element) != None])
+    return set([element for element in (amass_subdoms + github_subdoms).split('\n') if re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', element) != None])
 
+
+def remove_blacklist(blacklist_arg, subdoms_set):
     # remove blacklisted assets
     blacklist_set = set(blacklist_arg.split(','))
-    total_subdoms_set.difference_update(blacklist_set)
+    subdoms_set.difference_update(blacklist_set)
 
-    # add target domains to the set
-    total_subdoms_set.update(set(target_arg.split(',')))
 
+def unique_live_targets(targets):
     # narrow down results to valid subdomains with unique destinations
     unique_dest_set = set()
-    valid_subdoms_set = set()
-    for subdomain in total_subdoms_set:
+    for subdomain in targets:
         try:
             response = requests.head("http://" + subdomain, allow_redirects=True)
-            valid_subdoms_set.add(subdomain)
             unique_dest_set.add(re.fullmatch('[A-Za-z]+:\/\/([A-Za-z0-9\-\.]+).*', response.url)[1])
             print('[+] resolved: ' + subdomain)
         except:
             print('[-] removed: ' + subdomain)
-        time.sleep(1)
 
-    # write all resolvable subdomains to file
-    print("\nWriting cleaned results to files...")
+    # store results in file
+    print("\nWriting resolvable subdomains with unique destinations to files...")
     time.sleep(1)
-    with open(path.join(BASE_DIR, RESOLV_SUB_FILE), 'w') as f:
-        f.write('\n'.join(valid_subdoms_set) + '\n')
-    # write all subdomains with unique destinations to file
     with open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'w') as f:
         f.write('\n'.join(unique_dest_set) + '\n')
-
+        
     return unique_dest_set
 
 
-def start_routine(target_arg, github_token, blacklist_arg):
-    # Collect subdomains list with unique destinations
-    print("\n\nINIATING THE 'HUNTSMAN' SEQUENCE...")
-    unique_subdomains = enum_subdoms(target_arg, github_token, blacklist_arg)
-    print("\n\nHUNTING SUBDOMAINS => COMPLETE")
+def start_sequence(target_arg, github_token, blacklist_arg):
+    print("\n\n'HUNTSMAN' SEQUENCE => INITIATE")
     time.sleep(2)
 
-    # Use collected subdomains with aquatone
-    print("\n\nFIRING 'AQUATONE' TO SCREENSHOT WEB APPS...")
-    time.sleep(1)
-    aquatone_proc = run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", path.join(BASE_DIR, AQUATONE_RES_DIR)], stdin=open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'r'), stdout=open(devnull, 'w'))
+    print("\n\nHUNTING LIVE SUBDOMAINS => INITIATE")
+    time.sleep(2)
+    # Collect subdomains list with unique destinations
+    target_domains = set(target_arg.split(','))
+    unique_subdomains = subdomains(target_arg, github_token)
+    target_domains.update(unique_subdomains)
+    remove_blacklist(blacklist_arg, target_domains)
+    live_targets = unique_live_targets(target_domains)
+    print("\n\nHUNTING LIVE SUBDOMAINS => COMPLETE")
+    time.sleep(2)
 
-    # Use collected subdomains with subdomainizer
-    print("\n\nFIRING 'SUBDOMAINIZER' TO HUNT STORED SECRETS...")
+    print("\nFiring 'Aquatone' to screen web apps...")
     time.sleep(1)
-    mkdir(path.join(BASE_DIR, SBDZ_RES_DIR))
-    SUBDOMS_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
-    SECRETS_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
-    CLOUD_F = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
-    subdomainizer_proc = run_async([tools['subdomainizer']["path"], "-l", path.join(BASE_DIR, UNIQUE_SUB_FILE),
-                                   "-o", SUBDOMS_F, "-sop", SECRETS_F, "-cop", CLOUD_F, "-k", "-g", "-gt", github_token])
+    aquatone_proc = aquatone()
+
+    print("\nFiring 'Subdomainizer' to hunt stored secrets...")
+    time.sleep(1)
+    subdomainizer_proc = subdomainizer(github_token)
 
     aquatone_proc.wait()
     subdomainizer_proc.wait()
+
     print("\n\n'HUNTSMAN' SEQUENCE => COMPLETE")
     time.sleep(1)
 
 
 def main():
     print(banner)
+
+    # ensure correct usage of tool
     try:
         target_arg = arg[1]
         github_token = arg[2]
@@ -327,26 +354,26 @@ def main():
         exit()
 
     # validating provided inputs
-    verify_args(target_arg, github_token)
+    verify_github_token(github_token)
+    verify_reachable_targets(target_arg)
 
     check_for_tools()
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(BASE_DIR):
-        print('results directory exists. exiting to avoid loss of previous reports...')
+        print('Results directory exists. exiting to avoid loss of previous reports...')
         exit()
     else:
         mkdir(BASE_DIR)
 
-    start_routine(target_arg, github_token, blacklist_arg)
+    start_sequence(target_arg, github_token, blacklist_arg)
 
-    # notify end of routine and exit
     print("\nOperation successful. All results are stored at '" + BASE_DIR + "'.")
     print("Shutting down...")
     time.sleep(2)
 
 
-# calling main function with KeyboardInterrupt handling
+# calling main while handling KeyboardInterrupts
 try:
     setpgrp()
     main()
