@@ -224,20 +224,17 @@ def enum_subdoms(target_arg, token, blacklist_arg):
     amass_proc = run_async([tools['amass']["path"], "enum", "-d", target_arg])
     print("Running 'github-subdomains' script...")
     time.sleep(1)
-    github_procs = [(target, run_async([tools['github-subdomains']["path"], '-t', token, '-d', target], stdout=PIPE))
-                    for target in target_arg.split(',')]
     github_subdoms = ''
-    time.sleep(2)
-    for target, proc in github_procs:
-        print("\nWaiting to find subdomains on github for '" + target + "'")
-        proc_output = proc.communicate()[0].decode('utf-8').lstrip('\n')
-        print(proc_output)
-        github_subdoms += proc_output
-    print("\nWaiting to for Amass to collect subdomains...")
+    for target in target_arg.split(','):
+        print("\nWaiting for Amass...")
+        gh_proc_out = run([tools['github-subdomains']["path"], '-t', token, '-d', target], capture_output=True).stdout.decode('utf-8') 
+        print("\nAttempted to find subdomains on github for '" + target + "':")
+        print(gh_proc_out)
+        github_subdoms += gh_proc_out
+    print("\nFinished enumerating github. Waiting for Amass to finish...")
     amass_proc.wait()
     print("\nRetrived Amass subdomains:")
-    amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg,
-                        '--names'], capture_output=True).stdout.decode('utf-8')
+    amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg, '--names'], capture_output=True).stdout.decode('utf-8')
     print(amass_subdoms)
 
     # write individual subdomain enum results to files
