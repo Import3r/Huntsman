@@ -228,15 +228,17 @@ def enum_subdoms(target_arg, token, blacklist_arg):
                     for target in target_arg.split(',')]
     github_subdoms = ''
     time.sleep(2)
-    print("\nWaiting for initial sequence to conclude, please wait...")
     for target, proc in github_procs:
-        proc.wait()
+        print("\nWaiting to find subdomains on github for '" + target + "'")
         proc_output = proc.communicate()[0].decode('utf-8').lstrip('\n')
-        print("\nFinding subdomains on github for the target: " + target)
+        print(proc_output)
         github_subdoms += proc_output
+    print("\nWaiting to for Amass to collect subdomains...")
     amass_proc.wait()
+    print("\nRetrived Amass subdomains:")
     amass_subdoms = run([tools['amass']["path"], 'db', '-d', target_arg,
                         '--names'], capture_output=True).stdout.decode('utf-8')
+    print(amass_subdoms)
 
     # write individual subdomain enum results to files
     print("Writing initial results to files...")
