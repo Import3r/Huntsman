@@ -197,11 +197,15 @@ def check_for_tools():
 
 
 def reachable(target):
+    url_regex = re.fullmatch('([A-Za-z]+:\/\/)*([A-Za-z0-9\-\.]+).*', target)
+    target = url_regex[url_regex.lastindex]
+    for method in ['http://', 'https://']:
         try:
-            requests.head("http://" + target.split('http://')[-1])  # Change this to a more reliable method
+            requests.head(method + target)
             return True
         except:
-            return False
+            pass
+    return False
 
 
 def valid_github_token(github_token):
