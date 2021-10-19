@@ -237,16 +237,16 @@ def verify_targets_format(target_arg):
 
 
 def subdomainizer(github_token):
-    mkdir(path.join(BASE_DIR, SBDZ_RES_DIR))
-    SUBDOMS_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
-    SECRETS_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
-    CLOUD_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
-    return run_async([tools['subdomainizer']["path"], "-l", path.join(BASE_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k", "-g", "-gt", github_token])
+    mkdir(path.join(RES_ROOT_DIR, SBDZ_RES_DIR))
+    SUBDOMS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
+    SECRETS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
+    CLOUD_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
+    return run_async([tools['subdomainizer']["path"], "-l", path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k", "-g", "-gt", github_token])
 
 
 def aquatone():
-    OUTPUT_DIR = path.join(BASE_DIR, AQUATONE_RES_DIR)
-    SUBDOMAINS_FILE = path.join(BASE_DIR, UNIQUE_SUB_FILE)
+    OUTPUT_DIR = path.join(RES_ROOT_DIR, AQUATONE_RES_DIR)
+    SUBDOMAINS_FILE = path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE)
     return run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", OUTPUT_DIR], stdin=open(SUBDOMAINS_FILE, 'r'), stdout=open(devnull, 'w'))
 
 
@@ -287,9 +287,9 @@ def subdomains(target_arg, token):
     # write individual subdomain enum results to files
     print("Writing enumeration results to files...")
     time.sleep(1)
-    with open(path.join(BASE_DIR, SUB_GIT_FILE), 'w') as f:
+    with open(path.join(RES_ROOT_DIR, SUB_GIT_FILE), 'w') as f:
         f.write(github_subdoms)
-    with open(path.join(BASE_DIR, SUB_AMASS_FILE), 'w') as f:
+    with open(path.join(RES_ROOT_DIR, SUB_AMASS_FILE), 'w') as f:
         f.write(amass_subdoms)
 
     # return only valid domain formats from scan results 
@@ -316,7 +316,7 @@ def unique_live_targets(targets):
     # store results in file
     print("\nWriting resolvable subdomains with unique destinations to files...")
     time.sleep(1)
-    with open(path.join(BASE_DIR, UNIQUE_SUB_FILE), 'w') as f:
+    with open(path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), 'w') as f:
         f.write('\n'.join(unique_dest_set) + '\n')
         
     return unique_dest_set
@@ -328,7 +328,7 @@ def start_sequence(target_arg, github_token, blacklist_arg):
 
     print("\n\nHUNTING LIVE SUBDOMAINS => INITIATE")
     time.sleep(2)
-    
+
     # Collect subdomains list with unique destinations
     target_domains = set(target_arg.split(','))
     unique_subdomains = subdomains(target_arg, github_token)
@@ -377,15 +377,15 @@ def main():
     check_for_tools()
 
     # checking for previous runs of 'Huntsman'
-    if path.isdir(BASE_DIR):
+    if path.isdir(RES_ROOT_DIR):
         print('Results directory exists. exiting to avoid loss of previous reports...')
         exit()
     else:
-        mkdir(BASE_DIR)
+        mkdir(RES_ROOT_DIR)
 
     start_sequence(target_arg, github_token, blacklist_arg)
 
-    print("\nOperation successful. All results are stored at '" + BASE_DIR + "'.")
+    print("\nOperation successful. All results are stored at '" + RES_ROOT_DIR + "'.")
     print("Shutting down...")
     time.sleep(2)
 
