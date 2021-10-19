@@ -27,10 +27,10 @@ git clone https://github.com/Import3r/Huntsman.git
 cd Huntsman
 ```
 
-- Install needed packages from packages.txt:
+- Install needed packages from apt_packages.txt:
 
 ```bash
-xargs -r -a packages.txt sudo apt-get install -y
+xargs -r -a apt_packages.txt sudo apt-get install -y
 ```
 
 - Run "Huntsman":
