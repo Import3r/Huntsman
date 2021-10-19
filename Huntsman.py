@@ -14,7 +14,7 @@ import json
 import re
 import time
 import signal
-from default_names import *
+from static_names import *
 
 SCRIPT_DIR_PATH = path.dirname(arg[0])
 
