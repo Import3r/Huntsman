@@ -1,20 +1,8 @@
 #! /usr/bin/python3
 
-from sys import executable, path as here, argv as arg
-from subprocess import run, PIPE
-from subprocess import STDOUT, Popen as run_async
-from shutil import which
-from os import path, chmod, makedirs, mkdir, geteuid, getcwd, setpgrp, killpg, devnull
-import apt
-import git
-import wget
-import zipfile
-import requests
-import json
-import re
-import time
-import signal
-from static_names import *
+from resources.packages import *
+from resources.static_names import *
+from resources.wrapper_functions import *
 
 SCRIPT_DIR_PATH = path.dirname(arg[0])
 
@@ -26,12 +14,12 @@ banner = """
 
 """
 
-with open(path.join(SCRIPT_DIR_PATH, 'tools.json'), 'r') as json_file:
+with open(path.join(SCRIPT_DIR_PATH, HM_PKGS_DIR ,JSON_FILE), 'r') as json_file:
     tools = json.load(json_file)
 
 
 def update_json_file():
-    with open(path.join(SCRIPT_DIR_PATH, 'tools.json'), 'w') as json_file:
+    with open(path.join(SCRIPT_DIR_PATH, HM_PKGS_DIR ,JSON_FILE), 'w') as json_file:
         json.dump(tools, json_file, indent=4)
 
 
@@ -236,43 +224,17 @@ def verify_targets_format(target_arg):
                 exit()
 
 
-def subdomainizer(github_token):
-    mkdir(path.join(RES_ROOT_DIR, SBDZ_RES_DIR))
-    SUBDOMS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
-    SECRETS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
-    CLOUD_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
-    return run_async([tools['subdomainizer']["path"], "-l", path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k", "-g", "-gt", github_token])
-
-
-def aquatone():
-    OUTPUT_DIR = path.join(RES_ROOT_DIR, AQUATONE_RES_DIR)
-    SUBDOMAINS_FILE = path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE)
-    return run_async([tools['aquatone']["path"], "-scan-timeout", "500", "-threads", "1", "-out", OUTPUT_DIR], stdin=open(SUBDOMAINS_FILE, 'r'), stdout=open(devnull, 'w'))
-
-
-def amass(target_arg):
-    return run_async([tools['amass']["path"], "enum", "-d", target_arg])
-
-
-def github_subdomains(target, token):
-    return run([tools['github-subdomains']["path"], '-t', token, '-d', target], capture_output=True).stdout.decode('utf-8')
-
-
-def amass_subdomains(target_arg):
-    return run([tools['amass']["path"], 'db', '-d', target_arg, '--names'], capture_output=True).stdout.decode('utf-8')
-
-
 def subdomains(target_arg, token):
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
-    amass_proc = amass(target_arg)
+    amass_proc = amass(tools['amass']["path"], target_arg)
 
     print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
     github_subdoms = ''
     for target in target_arg.split(','):
         print("[+] Waiting for Amass...")
-        result = github_subdomains(target, token) 
+        result = github_subdomains(tools['github-subdomains']["path"], target, token) 
         print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
         github_subdoms += result
@@ -281,7 +243,7 @@ def subdomains(target_arg, token):
     
     amass_proc.wait()
     print("[+] Retrived Amass subdomains:")
-    amass_subdoms = amass_subdomains(target_arg)
+    amass_subdoms = amass_subdomains(tools['amass']["path"], target_arg)
     print(amass_subdoms)
 
     # write individual subdomain enum results to files
@@ -340,11 +302,11 @@ def start_sequence(target_arg, github_token, blacklist_arg):
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone_proc = aquatone()
+    aquatone_proc = aquatone(tools['aquatone']["path"])
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer_proc = subdomainizer(github_token)
+    subdomainizer_proc = subdomainizer(tools['subdomainizer']["path"], github_token)
 
     aquatone_proc.wait()
     subdomainizer_proc.wait()
@@ -394,7 +356,8 @@ def main():
 # calling main while handling KeyboardInterrupts
 try:
     setpgrp()
-    main()
+    if __name__ == "__main__":
+        main()
 except KeyboardInterrupt:
     print("\n\n[!] Exiting...")
     killpg(0, signal.SIGKILL)

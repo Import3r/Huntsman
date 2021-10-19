@@ -1,4 +1,6 @@
 TOOLS_DIR = 'installed_tools'
+HM_PKGS_DIR = 'resources'
+JSON_FILE = 'tools.json'
 RES_ROOT_DIR = 'huntsman_results'
 UNIQUE_SUB_FILE = 'unique-subdomains.all'
 SUB_GIT_FILE = 'subdomains.github'
