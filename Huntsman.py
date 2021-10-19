@@ -69,7 +69,7 @@ def install_compiled(tool):
     if path.exists(install_path):
         update_install_path(tool, path.join(install_path, relative_path))
     else:
-        print("Failed to properly decompress '" + zip_name + "'\n exiting...")
+        print("[X] Failed to properly decompress '" + zip_name + "'\n exiting...")
         exit()
 
 
@@ -80,14 +80,14 @@ def auto_install(required_tools):
             try:
                 install_compiled(tool)
             except Exception as e:
-                print("The following exception occured when installing '" + tool + "':")
+                print("[X] The following exception occured when installing '" + tool + "':")
                 print(e)
                 exit()
         elif tools[tool]["install_type"] == "from_repo":
             try:
                 install_from_repo(tool)
             except Exception as e:
-                print("The following exception occured when installing '" + tool + "':")
+                print("[X] The following exception occured when installing '" + tool + "':")
                 print(e)
                 exit()
 
@@ -102,32 +102,32 @@ def tool_exists(tool):
 
 def ask_for_path(tool):
     while True:
-        path = input("Please enter the full path for '" + tool + "': ")
+        path = input("[?] Please enter the full path for '" + tool + "': ")
         if tool_exists(path):
             update_install_path(tool, path)
             return
         else:
-            print("Invalid path.")
+            print("[!] Invalid path.")
 
 
 def offer_store_paths(required_tools):
     while True:
-        choice = input("Would you like to enter the path for each tool you have manually? (Y)es, (N)o: ")
+        choice = input("[?] Would you like to enter the path for each tool you have manually? (Y)es, (N)o: ")
         if choice.upper() == 'Y':
             for tool in required_tools:
                 ask_for_path(tool)   
-            print("Paths for tools were saved successfully.")
+            print("[+] Paths for tools were saved successfully.")
             return
         elif choice.upper() == 'N':
-            print("Install the missing tools manually, or run the script again. Bye!")
+            print("[!] Install the missing tools manually, or run the script again. Bye!")
             exit()
         else:
-            print("Please enter 'Y' or 'N' only.")
+            print("[!] Please enter 'Y' or 'N' only.")
 
 
 def offer_install(required_tools):
     while True:
-        choice = input("Would you like me to pull the remaining tools for you? (Y)es, (N)o, (Q)uit: ")
+        choice = input("[?] Would you like me to pull the remaining tools for you? (Y)es, (N)o, (Q)uit: ")
         if choice.upper() == 'Y':
             auto_install(required_tools)
             return
@@ -135,10 +135,10 @@ def offer_install(required_tools):
             offer_store_paths(required_tools)
             return
         elif choice.upper() == 'Q':
-            print("Install the missing tools manually, or run the script again. Bye!")
+            print("[!] Install the missing tools manually, or run the script again. Bye!")
             exit()
         else:
-            print("Please enter 'Y', 'N', or 'Q' only.")
+            print("[!] Please enter 'Y', 'N', or 'Q' only.")
 
 
 def install_browser(package):
@@ -146,17 +146,17 @@ def install_browser(package):
     if geteuid() != 0:
         install_cmd = ["sudo"] + install_cmd
     try:
-        print("Installing " + package + "...")
+        print("[+] Installing " + package + "...")
         run(install_cmd, stderr=STDOUT)
     except Exception as e:
-        print("The following exception occured when installing '" + package + "':")
+        print("[X] The following exception occured when installing '" + package + "':")
         print(e)
         exit()
 
 
 def offer_browser():
     while True:
-        choice = input("Missing google-chrome/chromium-browser required by 'aquatone'.\nDo you want to install it now? (Y)es, (N)o: ")
+        choice = input("[?] Missing google-chrome/chromium-browser required by 'aquatone'.\nDo you want to install it now? (Y)es, (N)o: ")
         if choice.upper() == 'Y':
             if available_in_apt("chromium-browser"):
                 install_browser("chromium-browser")
@@ -167,15 +167,15 @@ def offer_browser():
                 install_browser("./" + deb_pkg)
                 return
         elif choice.upper() == 'N':
-            print("Install 'google-chrome' or 'chromium-browser' manually, or run the script again. Bye!")
+            print("[!] Install 'google-chrome' or 'chromium-browser' manually, or run the script again. Bye!")
             exit()
         else:
-            print("Please enter 'Y' or 'N' only.")
+            print("[!] Please enter 'Y' or 'N' only.")
 
 
 def warn_missing(missing_tools):
     for missing in missing_tools:
-        print("missing tool: '" + missing + "'")
+        print("[!] missing tool: '" + missing + "'")
 
 
 def check_for_tools():
@@ -193,7 +193,7 @@ def check_for_tools():
         warn_missing(missing_tools)
         offer_install(missing_tools)
 
-    print("\n\nReady to engage.\n\n")
+    print("\n\n[+] Ready to engage.\n\n")
 
 
 def reachable(target):
@@ -218,21 +218,21 @@ def valid_domain_format(string):
 
 def verify_github_token(github_token):
     if not valid_github_token(github_token):
-        print("Faulty Github token, please provide a valid one")
+        print("[X] Faulty Github token, please provide a valid one")
         exit()
 
 
 def verify_reachable_targets(target_arg):
     for target in target_arg.split(','):
         if not reachable(target):
-            print("Problem with reaching target: '" + target + "'")
+            print("[X] Problem with reaching target: '" + target + "'")
             exit()
 
 
 def verify_targets_format(target_arg):
     for target in target_arg.split(','):
             if not valid_domain_format(target):
-                print("The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
+                print("[X] The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
                 exit()
 
 
@@ -263,29 +263,29 @@ def amass_subdomains(target_arg):
 
 
 def subdomains(target_arg, token):
-    print("\nFiring 'Amass' to hunt subdomains...")
+    print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
     amass_proc = amass(target_arg)
 
-    print("\nHunting subdomains on GitHub...")
+    print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
     github_subdoms = ''
     for target in target_arg.split(','):
-        print("\nWaiting for Amass...")
+        print("[+] Waiting for Amass...")
         result = github_subdomains(target, token) 
-        print("\nAttempted to find subdomains on github for '" + target + "':")
+        print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
         github_subdoms += result
         time.sleep(1)
-    print("\nFinished enumerating github. Waiting for Amass to finish...")
+    print("[+] Finished enumerating github. Waiting for Amass to finish...")
     
     amass_proc.wait()
-    print("\nRetrived Amass subdomains:")
+    print("[+] Retrived Amass subdomains:")
     amass_subdoms = amass_subdomains(target_arg)
     print(amass_subdoms)
 
     # write individual subdomain enum results to files
-    print("Writing enumeration results to files...")
+    print("[+] Writing enumeration results to files...")
     time.sleep(1)
     with open(path.join(RES_ROOT_DIR, SUB_GIT_FILE), 'w') as f:
         f.write(github_subdoms)
@@ -311,10 +311,10 @@ def unique_live_targets(targets):
             unique_dest_set.add(re.fullmatch('[A-Za-z]+:\/\/([A-Za-z0-9\-\.]+).*', response.url)[1])
             print('[+] resolved: ' + subdomain)
         except:
-            print('[-] removed: ' + subdomain)
+            print('[+] removed: ' + subdomain)
 
     # store results in file
-    print("\nWriting resolvable subdomains with unique destinations to files...")
+    print("[+] Writing resolvable subdomains with unique destinations to files...")
     time.sleep(1)
     with open(path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), 'w') as f:
         f.write('\n'.join(unique_dest_set) + '\n')
@@ -323,10 +323,10 @@ def unique_live_targets(targets):
 
 
 def start_sequence(target_arg, github_token, blacklist_arg):
-    print("\n\n'HUNTSMAN' SEQUENCE => INITIATE")
+    print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
-    print("\n\nHUNTING LIVE SUBDOMAINS => INITIATE")
+    print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
     # Collect subdomains list with unique destinations
@@ -335,21 +335,21 @@ def start_sequence(target_arg, github_token, blacklist_arg):
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_arg, target_domains)
     live_targets = unique_live_targets(target_domains)
-    print("\n\nHUNTING LIVE SUBDOMAINS => COMPLETE")
+    print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
 
-    print("\nFiring 'Aquatone' to screen web apps...")
+    print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
     aquatone_proc = aquatone()
 
-    print("\nFiring 'Subdomainizer' to hunt stored secrets...")
+    print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
     subdomainizer_proc = subdomainizer(github_token)
 
     aquatone_proc.wait()
     subdomainizer_proc.wait()
 
-    print("\n\n'HUNTSMAN' SEQUENCE => COMPLETE")
+    print("\n\n[+] 'HUNTSMAN' sequence completed")
     time.sleep(1)
 
 
@@ -365,9 +365,10 @@ def main():
         except:
             blacklist_arg = ''
     except:
-        print('usage: ' + arg[0] + ' TARGET_DOMAINS' +
+        print('[!] usage:')
+        print('\n    ' + arg[0] + ' TARGET_DOMAINS' +
               ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
-        print('\nNote: comma separate multi-inputs')
+        print('\n[!] comma separate multi-inputs')
         exit()
 
     # validating provided inputs
@@ -385,8 +386,8 @@ def main():
 
     start_sequence(target_arg, github_token, blacklist_arg)
 
-    print("\nOperation successful. All results are stored at '" + RES_ROOT_DIR + "'.")
-    print("Shutting down...")
+    print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")
+    print("[+] Shutting down...")
     time.sleep(2)
 
 
@@ -395,5 +396,5 @@ try:
     setpgrp()
     main()
 except KeyboardInterrupt:
-    print("\n\nExiting...")
+    print("\n\n[!] Exiting...")
     killpg(0, signal.SIGKILL)
