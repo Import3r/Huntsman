@@ -229,6 +229,13 @@ def verify_reachable_targets(target_arg):
             exit()
 
 
+def verify_targets_format(target_arg):
+    for target in target_arg.split(','):
+            if not valid_domain_format(target):
+                print("The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
+                exit()
+
+
 def subdomainizer(github_token):
     mkdir(path.join(BASE_DIR, SBDZ_RES_DIR))
     SUBDOMS_FILE = path.join(BASE_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
@@ -321,6 +328,7 @@ def start_sequence(target_arg, github_token, blacklist_arg):
 
     print("\n\nHUNTING LIVE SUBDOMAINS => INITIATE")
     time.sleep(2)
+    
     # Collect subdomains list with unique destinations
     target_domains = set(target_arg.split(','))
     unique_subdomains = subdomains(target_arg, github_token)
@@ -364,7 +372,7 @@ def main():
 
     # validating provided inputs
     verify_github_token(github_token)
-    verify_reachable_targets(target_arg)
+    verify_targets_format(target_arg)
 
     check_for_tools()
 
