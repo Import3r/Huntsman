@@ -212,6 +212,10 @@ def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
+def valid_domain_format(string):
+    return re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', string) != None
+
+
 def verify_github_token(github_token):
     if not valid_github_token(github_token):
         print("Faulty Github token, please provide a valid one")
@@ -281,7 +285,8 @@ def subdomains(target_arg, token):
     with open(path.join(BASE_DIR, SUB_AMASS_FILE), 'w') as f:
         f.write(amass_subdoms)
 
-    return set([element for element in (amass_subdoms + github_subdoms).split('\n') if re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', element) != None])
+    # return only valid domain formats from scan results 
+    return set([element for element in (amass_subdoms + github_subdoms).split('\n') if valid_domain_format(element)])
 
 
 def remove_blacklist(blacklist_arg, subdoms_set):
