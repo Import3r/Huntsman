@@ -224,7 +224,7 @@ def verify_targets_format(target_arg):
                 exit()
 
 
-def subdomains(target_arg, token):
+def raw_subdomains(target_arg, token):
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
     amass_proc = amass(tools['amass']["path"], target_arg)
@@ -293,7 +293,7 @@ def start_sequence(target_arg, github_token, blacklist_arg):
 
     # Collect subdomains list with unique destinations
     target_domains = set(target_arg.split(','))
-    unique_subdomains = subdomains(target_arg, github_token)
+    unique_subdomains = raw_subdomains(target_arg, github_token)
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_arg, target_domains)
     live_targets = unique_live_targets(target_domains)
