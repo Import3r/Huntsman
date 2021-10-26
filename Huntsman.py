@@ -18,6 +18,14 @@ with open(path.join(SCRIPT_DIR_PATH, HM_PKGS_DIR ,JSON_FILE), 'r') as json_file:
     tools = json.load(json_file)
 
 
+def lines_set_from_bytes(data):
+    return set(data.decode('utf-8').strip().split('\n'))
+
+
+def lines_bytes_from_set(given_set):
+    return "\n".join(given_set)
+
+
 def update_json_file():
     with open(path.join(SCRIPT_DIR_PATH, HM_PKGS_DIR ,JSON_FILE), 'w') as json_file:
         json.dump(tools, json_file, indent=4)
