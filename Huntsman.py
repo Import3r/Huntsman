@@ -208,7 +208,7 @@ def valid_github_token(github_token):
     return requests.get('https://api.github.com/user', headers={'authorization': 'Bearer ' + github_token}).ok
 
 
-def valid_domain_format(string):
+def is_valid_domain_format(string):
     return re.fullmatch('^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+$', string) != None
 
 
@@ -227,7 +227,7 @@ def verify_reachable_targets(target_arg):
 
 def verify_targets_format(target_arg):
     for target in target_arg.split(','):
-            if not valid_domain_format(target):
+            if not is_valid_domain_format(target):
                 print("[X] The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
                 exit()
 
@@ -264,7 +264,7 @@ def raw_subdomains(target_arg, token):
 
     # return only valid domain formats from scan results
     subdoms = lines_set_from_bytes(bytes(amass_subdoms + github_subdoms))
-    return set(subdom for subdom in subdoms if valid_domain_format(subdom))
+    return set(subdom for subdom in subdoms if is_valid_domain_format(subdom))
 
 
 def remove_blacklist(blacklist_arg, subdoms_set):
