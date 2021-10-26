@@ -262,8 +262,9 @@ def raw_subdomains(target_arg, token):
     with open(path.join(RES_ROOT_DIR, SUB_AMASS_FILE), 'w') as f:
         f.write(amass_subdoms)
 
-    # return only valid domain formats from scan results 
-    return set([element for element in (amass_subdoms + github_subdoms).split('\n') if valid_domain_format(element)])
+    # return only valid domain formats from scan results
+    subdoms = lines_set_from_bytes(bytes(amass_subdoms + github_subdoms))
+    return set(subdom for subdom in subdoms if valid_domain_format(subdom))
 
 
 def remove_blacklist(blacklist_arg, subdoms_set):
