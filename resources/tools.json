@@ -33,5 +33,14 @@
         "remote_repo_name": "github-search",
         "install_type": "from_repo",
         "install_url": "https://github.com/gwen001/github-search.git"
+    },
+    "gospider": {
+        "file_name": "gospider",
+        "path": "",
+        "req_file_name": null,
+        "zipfile_name": null,
+        "remote_repo_name": "gospider",
+        "install_type": "go_package",
+        "install_url": "github.com/jaeles-project/gospider"
     }
 }

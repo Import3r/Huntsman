@@ -25,7 +25,23 @@ def update_install_path(tool, given_path):
     update_json_file()
 
 
-def install_from_repo(tool):
+def install_go_package(tool):
+    url = tools[tool]["install_url"]
+    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
+    file_name = tools[tool]["file_name"]
+    binary_path = path.join(path.expanduser("~"),"go","bin",file_name)
+    makedirs(install_path, exist_ok=True)
+    run(f"GO111MODULE=on go get -u {url}", shell=True, stderr=STDOUT)
+
+    if path.exists(binary_path):
+        rename(binary_path, path.join(install_path, file_name))
+        update_install_path(tool, path.join(install_path, file_name))
+    else:
+        print("[X] Failed to install '" + tool + "'\n exiting...")
+        exit()
+
+
+def install_repo_python3(tool):
     url = tools[tool]["install_url"]
     install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
     req_name = tools[tool]["req_file_name"]
@@ -37,7 +53,7 @@ def install_from_repo(tool):
     update_install_path(tool, path.join(install_path, file_name))
 
 
-def install_compiled(tool):
+def install_compiled_zip(tool):
     url = tools[tool]["install_url"]
     install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
     zip_name = tools[tool]["zipfile_name"]
@@ -59,20 +75,18 @@ def install_compiled(tool):
 def auto_install(required_tools):
     makedirs(TOOLS_DIR, exist_ok=True)
     for tool in required_tools:
-        if tools[tool]["install_type"] == "compiled":
-            try:
-                install_compiled(tool)
-            except Exception as e:
-                print("[X] The following exception occured when installing '" + tool + "':")
-                print(e)
-                exit()
-        elif tools[tool]["install_type"] == "from_repo":
-            try:
-                install_from_repo(tool)
-            except Exception as e:
-                print("[X] The following exception occured when installing '" + tool + "':")
-                print(e)
-                exit()
+        try:
+            if tools[tool]["install_type"] == "compiled":
+                install_compiled_zip(tool)
+            elif tools[tool]["install_type"] == "go_package":
+                install_go_package(tool)
+            elif tools[tool]["install_type"] == "from_repo":
+                install_repo_python3(tool)        
+
+        except Exception as e:
+            print("[X] The following exception occured when installing '" + tool + "':")
+            print(e)
+            exit()
 
 
 def available_in_apt(pkg_name):
