@@ -233,6 +233,24 @@ def verify_targets_format(targets):
                 exit()
 
 
+def remove_blacklist(blacklist, subdoms_set):
+    # remove blacklisted assets
+    subdoms_set.difference_update(blacklist)
+
+
+def resolved_targets(targets):
+    # narrow down results to valid subdomains with unique destinations
+    unique_dest_set = set()
+    for subdomain in targets:
+        try:
+            response = requests.head("http://" + subdomain, allow_redirects=True)
+            unique_dest_set.add(re.fullmatch('[A-Za-z]+:\/\/([A-Za-z0-9\-\.]+).*', response.url)[1])
+            print('[+] resolved: ' + subdomain)
+        except:
+            print('[+] removed: ' + subdomain)
+    return unique_dest_set
+
+
 def subdomainizer(subdomainizer_path):
     mkdir(path.join(RES_ROOT_DIR, SBDZ_RES_DIR))
     SUBDOMS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
@@ -298,24 +316,6 @@ def raw_subdomains(targets, token):
     # return only valid domain formats from scan results
     all_valid_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
     return (all_valid_subdoms, github_subdoms, amass_subdoms)
-
-
-def remove_blacklist(blacklist, subdoms_set):
-    # remove blacklisted assets
-    subdoms_set.difference_update(blacklist)
-
-
-def resolved_targets(targets):
-    # narrow down results to valid subdomains with unique destinations
-    unique_dest_set = set()
-    for subdomain in targets:
-        try:
-            response = requests.head("http://" + subdomain, allow_redirects=True)
-            unique_dest_set.add(re.fullmatch('[A-Za-z]+:\/\/([A-Za-z0-9\-\.]+).*', response.url)[1])
-            print('[+] resolved: ' + subdomain)
-        except:
-            print('[+] removed: ' + subdomain)
-    return unique_dest_set
 
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
