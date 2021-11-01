@@ -13,6 +13,11 @@ def lines_bytes_from_set(given_set):
     return "\n".join(given_set)
 
 
+def store_results(data_string, file_path):
+    with open(file_path, 'w') as f:
+        f.write(data_string)
+
+
 def update_install_path(tool, given_path):
     full_path = path.abspath(given_path)
     tools[tool]["path"] = full_path
@@ -291,10 +296,9 @@ def raw_subdomains(targets, token):
     # write individual subdomain enum results to files
     print("[+] Writing enumeration results to files...")
     time.sleep(1)
-    with open(path.join(RES_ROOT_DIR, SUB_GIT_FILE), 'w') as f:
-        f.write(github_subdoms)
-    with open(path.join(RES_ROOT_DIR, SUB_AMASS_FILE), 'w') as f:
-        f.write(amass_subdoms)
+
+    store_results(github_subdoms, path.join(RES_ROOT_DIR, SUB_GIT_FILE))
+    store_results(amass_subdoms, path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
 
     # return only valid domain formats from scan results
     subdoms = lines_set_from_bytes(bytes(amass_subdoms + github_subdoms, 'utf-8'))
@@ -320,9 +324,9 @@ def resolved_targets(targets):
     # store results in file
     print("[+] Writing resolvable subdomains with unique destinations to files...")
     time.sleep(1)
-    with open(path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), 'w') as f:
-        f.write('\n'.join(unique_dest_set) + '\n')
-        
+
+    store_results(lines_bytes_from_set(unique_dest_set), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+
     return unique_dest_set
 
 
