@@ -286,14 +286,14 @@ def raw_subdomains(targets, token):
         print(result)
         github_output += result
         time.sleep(1)
-    github_subdoms = lines_set_from_bytes(bytes(github_output), 'utf-8')
+    github_subdoms = lines_set_from_bytes(bytes(github_output, 'utf-8'))
 
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
     amass_output = amass_proc.communicate()[0].decode('utf-8')
 
     print("[+] Retrived Amass subdomains:")
     print(amass_output)
-    amass_subdoms = lines_set_from_bytes(bytes(amass_output), 'utf-8')
+    amass_subdoms = lines_set_from_bytes(bytes(amass_output, 'utf-8'))
 
     # return only valid domain formats from scan results
     all_subdoms = github_subdoms.union(amass_subdoms)
@@ -319,6 +319,22 @@ def resolved_targets(targets):
     return unique_dest_set
 
 
+def subdomain_hunter_module(targets, github_token, blacklist_targets):
+    # Collect subdomains list with unique destinations
+    unique_subdomains, github_subdoms, amass_subdoms = raw_subdomains(targets, github_token)
+    
+    targets.update(unique_subdomains)
+    remove_blacklist(blacklist_targets, targets)
+    unique_targets = resolved_targets(targets)
+    
+    # write each individual result to files
+    print("[+] Writing enumeration results to files...")
+    time.sleep(1)
+    store_results(lines_data_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
+    store_results(lines_data_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
+    store_results(lines_data_from_set(unique_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+
+
 def start_sequence(targets, github_token, blacklist_targets):
     print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
@@ -326,23 +342,7 @@ def start_sequence(targets, github_token, blacklist_targets):
     print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
-    # Collect subdomains list with unique destinations
-    target_domains = targets
-    unique_subdomains, github_subdoms, amass_subdoms = raw_subdomains(targets, github_token)
-    
-    # write individual subdomain enum results to files
-    print("[+] Writing enumeration results to files...")
-    time.sleep(1)
-    store_results(lines_data_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
-    store_results(lines_data_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
-    
-    target_domains.update(unique_subdomains)
-    remove_blacklist(blacklist_targets, target_domains)
-    live_targets = resolved_targets(target_domains)
-    
-    print("[+] Writing resolvable subdomains with unique destinations to files...")
-    time.sleep(1)
-    store_results(lines_data_from_set(live_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+    subdomain_hunter_module(targets, github_token, blacklist_targets)
 
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
