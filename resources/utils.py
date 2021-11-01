@@ -260,13 +260,13 @@ def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
 
 
 def gospider_endpoints(gospider_path, endpoints_list, output_dir):
-    gospider_proc = run("{gospider_path} -S {endpoints_list} --other-source -t 20 -o {output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", capture_output=True, shell=True)
+    gospider_proc = run(f"{gospider_path} -S {endpoints_list} --other-source -t 20 -o {output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", capture_output=True, shell=True)
     return lines_set_from_bytes(gospider_proc.stdout)
 
 
 def waybackurls_endpoints(wayback_path, target_doms, output_file):
     input_data = lines_bytes_from_set(target_doms)
-    wayback_proc = run("{wayback_path} | tee {output_file}", capture_output=True, shell=True, input=input_data)
+    wayback_proc = run(f"{wayback_path} | tee {output_file}", capture_output=True, shell=True, input=input_data)
     return lines_set_from_bytes(wayback_proc.stdout)
 
 
