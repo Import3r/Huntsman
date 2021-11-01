@@ -320,13 +320,6 @@ def resolved_targets(targets):
             print('[+] resolved: ' + subdomain)
         except:
             print('[+] removed: ' + subdomain)
-
-    # store results in file
-    print("[+] Writing resolvable subdomains with unique destinations to files...")
-    time.sleep(1)
-
-    store_results(lines_bytes_from_set(unique_dest_set), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
-
     return unique_dest_set
 
 
@@ -343,6 +336,10 @@ def start_sequence(targets, github_token, blacklist_targets):
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_targets, target_domains)
     live_targets = resolved_targets(target_domains)
+    
+    print("[+] Writing resolvable subdomains with unique destinations to files...")
+    time.sleep(1)
+    store_results(lines_bytes_from_set(live_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
 
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
