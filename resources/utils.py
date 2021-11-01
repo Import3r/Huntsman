@@ -219,15 +219,15 @@ def verify_github_token(github_token):
         exit()
 
 
-def verify_reachable_targets(target_arg):
-    for target in target_arg.split(','):
+def verify_reachable_targets(targets):
+    for target in targets:
         if not reachable(target):
             print("[X] Problem with reaching target: '" + target + "'")
             exit()
 
 
-def verify_targets_format(target_arg):
-    for target in target_arg.split(','):
+def verify_targets_format(targets):
+    for target in targets:
             if not is_valid_domain_format(target):
                 print("[X] The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
                 exit()
@@ -248,15 +248,11 @@ def aquatone(aquatone_path):
 
 
 def amass(amass_path, target_arg):
-    return run_async([amass_path, "enum", "-d", target_arg])
+    return run_async(f"{amass_path} enum --passive -d {target_arg} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
 def github_subdomains(gh_subdom_path, target, token):
     return run([gh_subdom_path, '-t', token, '-d', target], capture_output=True).stdout.decode('utf-8')
-
-
-def amass_subdomains(amass_path, target_arg):
-    return run([amass_path, 'db', '-d', target_arg, '--names'], capture_output=True).stdout.decode('utf-8')
 
 
 def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
@@ -274,26 +270,27 @@ def waybackurls_endpoints(wayback_path, target_doms, output_file):
     return lines_set_from_bytes(wayback_proc.stdout)
 
 
-def raw_subdomains(target_arg, token):
+def raw_subdomains(targets, token):
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
-    amass_proc = amass(tools['amass']["path"], target_arg)
+
+    amass_proc = amass(tools['amass']["path"], ','.join(targets))
 
     print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
     github_subdoms = ''
-    for target in target_arg.split(','):
+    for target in targets:
         print("[+] Waiting for Amass...")
         result = github_subdomains(tools['github-subdomains']["path"], target, token) 
         print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
         github_subdoms += result
         time.sleep(1)
+
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
-    
-    amass_proc.wait()
+    amass_subdoms = amass_proc.communicate()[0].decode('utf-8')
+
     print("[+] Retrived Amass subdomains:")
-    amass_subdoms = amass_subdomains(tools['amass']["path"], target_arg)
     print(amass_subdoms)
 
     # write individual subdomain enum results to files
@@ -309,10 +306,9 @@ def raw_subdomains(target_arg, token):
     return set(subdom for subdom in subdoms if is_valid_domain_format(subdom))
 
 
-def remove_blacklist(blacklist_arg, subdoms_set):
+def remove_blacklist(blacklist, subdoms_set):
     # remove blacklisted assets
-    blacklist_set = set(blacklist_arg.split(','))
-    subdoms_set.difference_update(blacklist_set)
+    subdoms_set.difference_update(blacklist)
 
 
 def unique_live_targets(targets):
@@ -335,7 +331,7 @@ def unique_live_targets(targets):
     return unique_dest_set
 
 
-def start_sequence(target_arg, github_token, blacklist_arg):
+def start_sequence(targets, github_token, blacklist_targets):
     print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
@@ -343,11 +339,12 @@ def start_sequence(target_arg, github_token, blacklist_arg):
     time.sleep(2)
 
     # Collect subdomains list with unique destinations
-    target_domains = set(target_arg.split(','))
-    unique_subdomains = raw_subdomains(target_arg, github_token)
+    target_domains = targets
+    unique_subdomains = raw_subdomains(targets, github_token)
     target_domains.update(unique_subdomains)
-    remove_blacklist(blacklist_arg, target_domains)
+    remove_blacklist(blacklist_targets, target_domains)
     live_targets = unique_live_targets(target_domains)
+
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
 

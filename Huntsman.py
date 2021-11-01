@@ -31,9 +31,13 @@ def main():
         print('\n[!] comma separate multi-inputs')
         exit()
 
+    targets = set(target_arg.split(','))
+    blacklist_targets = set(blacklist_arg.split(','))
+
+
     # validating provided inputs
     verify_github_token(github_token)
-    verify_targets_format(target_arg)
+    verify_targets_format(targets)
 
     check_for_tools()
 
@@ -44,7 +48,7 @@ def main():
     else:
         mkdir(RES_ROOT_DIR)
 
-    start_sequence(target_arg, github_token, blacklist_arg)
+    start_sequence(targets, github_token, blacklist_targets)
 
     print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")
     print("[+] Shutting down...")
