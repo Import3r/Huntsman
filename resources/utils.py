@@ -233,12 +233,12 @@ def verify_targets_format(targets):
                 exit()
 
 
-def subdomainizer(subdomainizer_path, github_token):
+def subdomainizer(subdomainizer_path):
     mkdir(path.join(RES_ROOT_DIR, SBDZ_RES_DIR))
     SUBDOMS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
     SECRETS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
     CLOUD_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
-    return run_async([subdomainizer_path, "-l", path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k", "-g", "-gt", github_token])
+    return run_async([subdomainizer_path, "-l", path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k"])
 
 
 def aquatone(aquatone_path):
@@ -354,7 +354,7 @@ def start_sequence(targets, github_token, blacklist_targets):
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer_proc = subdomainizer(tools['subdomainizer']["path"], github_token)
+    subdomainizer_proc = subdomainizer(tools['subdomainizer']["path"])
 
     aquatone_proc.wait()
     subdomainizer_proc.wait()
