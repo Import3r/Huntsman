@@ -296,9 +296,8 @@ def raw_subdomains(targets, token):
     amass_subdoms = lines_set_from_bytes(bytes(amass_output, 'utf-8'))
 
     # return only valid domain formats from scan results
-    all_subdoms = github_subdoms.union(amass_subdoms)
-    valid_subdoms = set(subdom for subdom in all_subdoms if is_valid_domain_format(subdom))
-    return (valid_subdoms, github_subdoms, amass_subdoms)
+    all_valid_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
+    return (all_valid_subdoms, github_subdoms, amass_subdoms)
 
 
 def remove_blacklist(blacklist, subdoms_set):
@@ -321,9 +320,9 @@ def resolved_targets(targets):
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
     # Collect subdomains list with unique destinations
-    unique_subdomains, github_subdoms, amass_subdoms = raw_subdomains(targets, github_token)
+    all_subdomains, github_subdoms, amass_subdoms = raw_subdomains(targets, github_token)
     
-    targets.update(unique_subdomains)
+    targets.update(all_subdomains)
     remove_blacklist(blacklist_targets, targets)
     unique_targets = resolved_targets(targets)
     
