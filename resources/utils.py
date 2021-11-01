@@ -278,31 +278,27 @@ def raw_subdomains(targets, token):
 
     print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
-    github_subdoms = ''
+    github_output = ''
     for target in targets:
         print("[+] Waiting for Amass...")
         result = github_subdomains(tools['github-subdomains']["path"], target, token) 
         print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
-        github_subdoms += result
+        github_output += result
         time.sleep(1)
+    github_subdoms = lines_set_from_bytes(bytes(github_output), 'utf-8')
 
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
-    amass_subdoms = amass_proc.communicate()[0].decode('utf-8')
+    amass_output = amass_proc.communicate()[0].decode('utf-8')
 
     print("[+] Retrived Amass subdomains:")
-    print(amass_subdoms)
-
-    # write individual subdomain enum results to files
-    print("[+] Writing enumeration results to files...")
-    time.sleep(1)
-
-    store_results(github_subdoms, path.join(RES_ROOT_DIR, SUB_GIT_FILE))
-    store_results(amass_subdoms, path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
+    print(amass_output)
+    amass_subdoms = lines_set_from_bytes(bytes(amass_output), 'utf-8')
 
     # return only valid domain formats from scan results
-    subdoms = lines_set_from_bytes(bytes(amass_subdoms + github_subdoms, 'utf-8'))
-    return set(subdom for subdom in subdoms if is_valid_domain_format(subdom))
+    all_subdoms = github_subdoms.union(amass_subdoms)
+    valid_subdoms = set(subdom for subdom in all_subdoms if is_valid_domain_format(subdom))
+    return (valid_subdoms, github_subdoms, amass_subdoms)
 
 
 def remove_blacklist(blacklist, subdoms_set):
@@ -332,7 +328,14 @@ def start_sequence(targets, github_token, blacklist_targets):
 
     # Collect subdomains list with unique destinations
     target_domains = targets
-    unique_subdomains = raw_subdomains(targets, github_token)
+    unique_subdomains, github_subdoms, amass_subdoms = raw_subdomains(targets, github_token)
+    
+    # write individual subdomain enum results to files
+    print("[+] Writing enumeration results to files...")
+    time.sleep(1)
+    store_results(lines_bytes_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
+    store_results(lines_bytes_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
+    
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_targets, target_domains)
     live_targets = resolved_targets(target_domains)
