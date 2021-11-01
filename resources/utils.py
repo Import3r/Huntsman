@@ -13,11 +13,6 @@ def lines_bytes_from_set(given_set):
     return "\n".join(given_set)
 
 
-def update_json_file():
-    with open(path.join(path.dirname(arg[0]), HM_PKGS_DIR ,JSON_FILE), 'w') as json_file:
-        json.dump(tools, json_file, indent=4)
-
-
 def update_install_path(tool, given_path):
     full_path = path.abspath(given_path)
     tools[tool]["path"] = full_path
