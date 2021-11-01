@@ -2,7 +2,7 @@
 
 from resources.packages import *
 from resources.static_names import *
-from resources.tools import *
+from resources.json_handlers import *
 
 
 def lines_set_from_bytes(data):
