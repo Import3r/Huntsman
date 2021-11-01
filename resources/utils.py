@@ -311,7 +311,7 @@ def remove_blacklist(blacklist, subdoms_set):
     subdoms_set.difference_update(blacklist)
 
 
-def unique_live_targets(targets):
+def resolved_targets(targets):
     # narrow down results to valid subdomains with unique destinations
     unique_dest_set = set()
     for subdomain in targets:
@@ -343,7 +343,7 @@ def start_sequence(targets, github_token, blacklist_targets):
     unique_subdomains = raw_subdomains(targets, github_token)
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_targets, target_domains)
-    live_targets = unique_live_targets(target_domains)
+    live_targets = resolved_targets(target_domains)
 
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
