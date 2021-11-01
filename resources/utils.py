@@ -9,7 +9,7 @@ def lines_set_from_bytes(data):
     return set(data.decode('utf-8').strip().split('\n'))
 
 
-def lines_bytes_from_set(given_set):
+def lines_data_from_set(given_set):
     return "\n".join(given_set)
 
 
@@ -265,7 +265,7 @@ def gospider_endpoints(gospider_path, endpoints_list, output_dir):
 
 
 def waybackurls_endpoints(wayback_path, target_doms, output_file):
-    input_data = lines_bytes_from_set(target_doms)
+    input_data = lines_data_from_set(target_doms)
     wayback_proc = run(f"{wayback_path} | tee {output_file}", capture_output=True, shell=True, input=input_data)
     return lines_set_from_bytes(wayback_proc.stdout)
 
@@ -333,8 +333,8 @@ def start_sequence(targets, github_token, blacklist_targets):
     # write individual subdomain enum results to files
     print("[+] Writing enumeration results to files...")
     time.sleep(1)
-    store_results(lines_bytes_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
-    store_results(lines_bytes_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
+    store_results(lines_data_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
+    store_results(lines_data_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
     
     target_domains.update(unique_subdomains)
     remove_blacklist(blacklist_targets, target_domains)
@@ -342,7 +342,7 @@ def start_sequence(targets, github_token, blacklist_targets):
     
     print("[+] Writing resolvable subdomains with unique destinations to files...")
     time.sleep(1)
-    store_results(lines_bytes_from_set(live_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+    store_results(lines_data_from_set(live_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
 
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
