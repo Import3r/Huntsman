@@ -277,8 +277,12 @@ def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
     return run([altdns_path, '-i', source_file, '-o', output_file, '-w', wordlist_path])
 
 
-def gospider(gospider_path, endpoints_list, output_dir):
-    return run_async(f"{gospider_path} -S {endpoints_list} --other-source -t 20 -o {output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
+def gospider(gospider_path, subdomains):
+    IN_FILE_PATH = path.join(RES_ROOT_DIR ,GOSPDR_INPUT_FILE)
+    base_endpoints = set("http://" + subdom for subdom in subdomains)
+    store_results(lines_data_from_set(base_endpoints), IN_FILE_PATH)
+    OUT_DIR_PATH = path.join(RES_ROOT_DIR ,GOSPDR_RES_DIR)
+    return run_async(f"{gospider_path} -S {IN_FILE_PATH} --other-source -t 20 -o {OUT_DIR_PATH} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
 def waybackurls_endpoints(wayback_path, target_doms, output_file):
@@ -320,13 +324,8 @@ def raw_subdomains(targets, token):
 def endpoint_hunter_module(subdomains):
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-
-    input_file_path = path.join(RES_ROOT_DIR ,GOSPDR_INPUT_FILE)
-    output_dir_path = path.join(RES_ROOT_DIR ,GOSPDR_RES_DIR)
-    base_endpoints = set("http://" + subdom for subdom in subdomains)
-    store_results(lines_data_from_set(base_endpoints), input_file_path)
     
-    gospider_proc = gospider(tools["gospider"]["path"], input_file_path, output_dir_path)
+    gospider_proc = gospider(tools["gospider"]["path"], subdomains)
     gospider_output = gospider_proc.communicate()[0].decode('utf-8')
     gospider_endpoints = lines_set_from_bytes(bytes(gospider_output, 'utf-8'))
     endpoints_data = lines_data_from_set(gospider_endpoints)
