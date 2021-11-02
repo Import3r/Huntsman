@@ -1,15 +1,21 @@
-TOOLS_DIR = 'installed_tools'
-HM_PKGS_DIR = 'resources'
 JSON_FILE = 'tools.json'
+
+HM_PKGS_DIR = 'resources'
+TOOLS_DIR = 'installed_tools'
+
 RES_ROOT_DIR = 'huntsman_results'
-UNIQUE_SUB_FILE = 'unique-subdomains.all'
-SUB_GIT_FILE = 'subdomains.github'
-SUB_AMASS_FILE = 'subdomains.amass'
 AQUATONE_RES_DIR = 'aquatone_results'
 SBDZ_RES_DIR = 'subdomainizer_results'
-SBDZ_SECRET_FILE = 'secrets.subdomainizer'
-SBDZ_SUB_FILE = 'subdomains.subdomainizer'
-SBDZ_CLOUD_FILE = 'cloud-services.subdomainizer'
 GOSPDR_RES_DIR = 'gospider_results'
-GOSPDR_INPUT_FILE = 'endpoints_httplist.txt'
-UNIQUE_ENDP_FILE = 'unique-endpoints.all'
+
+SUB_MASTER_FILE = 'subdomains.all'
+ENDP_MASTER_FILE = 'endpoints.all'
+
+SUB_GIT_FILE = 'subdomains.github'
+SUB_AMASS_FILE = 'subdomains.amass'
+
+SBDZ_SUB_FILE = 'subdomains.subdomainizer'
+SBDZ_SECRET_FILE = 'secrets.subdomainizer'
+SBDZ_CLOUD_FILE = 'cloud-services.subdomainizer'
+
+GOSPDR_INPUT_FILE = 'subdom-urls.temp'
