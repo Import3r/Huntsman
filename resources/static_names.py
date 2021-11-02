@@ -9,10 +9,11 @@ SBDZ_RES_DIR = 'subdomainizer_results'
 GOSPDR_RES_DIR = 'gospider_results'
 
 SUB_MASTER_FILE = 'subdomains.all'
-ENDP_MASTER_FILE = 'endpoints.all'
-
 SUB_GIT_FILE = 'subdomains.github'
 SUB_AMASS_FILE = 'subdomains.amass'
+
+ENDP_MASTER_FILE = 'endpoints.all'
+ENDP_WAYBACK_FILE = 'endpoints.waybackurls'
 
 SBDZ_SUB_FILE = 'subdomains.subdomainizer'
 SBDZ_SECRET_FILE = 'secrets.subdomainizer'
