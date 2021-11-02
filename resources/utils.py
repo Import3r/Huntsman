@@ -256,12 +256,12 @@ def subdomainizer(subdomainizer_path):
     SUBDOMS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SUB_FILE)
     SECRETS_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_SECRET_FILE)
     CLOUD_FILE = path.join(RES_ROOT_DIR, SBDZ_RES_DIR, SBDZ_CLOUD_FILE)
-    return run_async([subdomainizer_path, "-l", path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k"])
+    return run_async([subdomainizer_path, "-l", path.join(RES_ROOT_DIR, SUB_MASTER_FILE), "-o", SUBDOMS_FILE, "-sop", SECRETS_FILE, "-cop", CLOUD_FILE, "-k"])
 
 
 def aquatone(aquatone_path):
     OUTPUT_DIR = path.join(RES_ROOT_DIR, AQUATONE_RES_DIR)
-    SUBDOMAINS_FILE = path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE)
+    SUBDOMAINS_FILE = path.join(RES_ROOT_DIR, SUB_MASTER_FILE)
     return run_async([aquatone_path, "-scan-timeout", "500", "-threads", "1", "-out", OUTPUT_DIR], stdin=open(SUBDOMAINS_FILE, 'r'), stdout=DEVNULL)
 
 
@@ -285,10 +285,10 @@ def gospider(gospider_path, subdomains):
     return run_async(f"{gospider_path} -S {IN_FILE_PATH} --other-source -t 20 -o {OUT_DIR_PATH} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
-def waybackurls_endpoints(wayback_path, target_doms, output_file):
-    input_data = lines_data_from_set(target_doms)
-    wayback_proc = run(f"{wayback_path} | tee {output_file}", capture_output=True, shell=True, input=input_data)
-    return lines_set_from_bytes(wayback_proc.stdout)
+def waybackurls(wayback_path, subdomains):
+    input_data = lines_data_from_set(subdomains)
+    OUTPUT_FILE = path.join(RES_ROOT_DIR ,ENDP_WAYBACK_FILE)
+    return run_async(f"{wayback_path} | tee {OUTPUT_FILE}", shell=True, stdin=input_data, stdout=PIPE, stderr=DEVNULL)
 
 
 def raw_subdomains(targets, token):
@@ -332,7 +332,7 @@ def endpoint_hunter_module(subdomains):
 
     print("[+] Retrieved gospider endpoints:")
     print(endpoints_data)
-    store_results(endpoints_data, path.join(RES_ROOT_DIR, UNIQUE_ENDP_FILE))
+    store_results(endpoints_data, path.join(RES_ROOT_DIR, ENDP_MASTER_FILE))
 
     return gospider_endpoints
 
@@ -350,7 +350,7 @@ def subdomain_hunter_module(targets, github_token, blacklist_targets):
     time.sleep(1)
     store_results(lines_data_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
     store_results(lines_data_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
-    store_results(lines_data_from_set(unique_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+    store_results(lines_data_from_set(unique_targets), path.join(RES_ROOT_DIR, SUB_MASTER_FILE))
     return unique_targets
 
 
