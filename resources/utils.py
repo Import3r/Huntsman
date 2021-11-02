@@ -277,9 +277,8 @@ def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
     return run([altdns_path, '-i', source_file, '-o', output_file, '-w', wordlist_path])
 
 
-def gospider_endpoints(gospider_path, endpoints_list, output_dir):
-    gospider_proc = run(f"{gospider_path} -S {endpoints_list} --other-source -t 20 -o {output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", capture_output=True, shell=True)
-    return lines_set_from_bytes(gospider_proc.stdout)
+def gospider(gospider_path, endpoints_list, output_dir):
+    return run_async(f"{gospider_path} -S {endpoints_list} --other-source -t 20 -o {output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
 def waybackurls_endpoints(wayback_path, target_doms, output_file):
@@ -309,13 +308,34 @@ def raw_subdomains(targets, token):
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
     amass_output = amass_proc.communicate()[0].decode('utf-8')
 
-    print("[+] Retrived Amass subdomains:")
+    print("[+] Retrieved Amass subdomains:")
     print(amass_output)
     amass_subdoms = lines_set_from_bytes(bytes(amass_output, 'utf-8'))
 
     # return only valid domain formats from scan results
     all_valid_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
     return (all_valid_subdoms, github_subdoms, amass_subdoms)
+
+
+def endpoint_hunter_module(subdomains):
+    print("[+] Firing 'gospider' to hunt endpoints...")
+    time.sleep(1)
+
+    input_file_path = path.join(RES_ROOT_DIR ,GOSPDR_INPUT_FILE)
+    output_dir_path = path.join(RES_ROOT_DIR ,GOSPDR_RES_DIR)
+    base_endpoints = set("http://" + subdom for subdom in subdomains)
+    store_results(lines_data_from_set(base_endpoints), input_file_path)
+    
+    gospider_proc = gospider(tools["gospider"]["path"], input_file_path, output_dir_path)
+    gospider_output = gospider_proc.communicate()[0].decode('utf-8')
+    gospider_endpoints = lines_set_from_bytes(bytes(gospider_output, 'utf-8'))
+    endpoints_data = lines_data_from_set(gospider_endpoints)
+
+    print("[+] Retrieved gospider endpoints:")
+    print(endpoints_data)
+    store_results(endpoints_data, path.join(RES_ROOT_DIR, UNIQUE_ENDP_FILE))
+
+    return gospider_endpoints
 
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
@@ -332,6 +352,7 @@ def subdomain_hunter_module(targets, github_token, blacklist_targets):
     store_results(lines_data_from_set(github_subdoms), path.join(RES_ROOT_DIR, SUB_GIT_FILE))
     store_results(lines_data_from_set(amass_subdoms), path.join(RES_ROOT_DIR, SUB_AMASS_FILE))
     store_results(lines_data_from_set(unique_targets), path.join(RES_ROOT_DIR, UNIQUE_SUB_FILE))
+    return unique_targets
 
 
 def start_sequence(targets, github_token, blacklist_targets):
@@ -341,9 +362,17 @@ def start_sequence(targets, github_token, blacklist_targets):
     print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
-    subdomain_hunter_module(targets, github_token, blacklist_targets)
+    all_subdomains = subdomain_hunter_module(targets, github_token, blacklist_targets)
 
     print("\n\n[+] Hunting live subdomains completed")
+    time.sleep(2)
+
+    print("\n\n[+] Hunting endpoints for targets initiated")
+    time.sleep(2)
+
+    all_endpoints = endpoint_hunter_module(all_subdomains)
+
+    print("\n\n[+] Hunting endpoints for targets completed")
     time.sleep(2)
 
     print("[+] Firing 'Aquatone' to screen web apps...")
