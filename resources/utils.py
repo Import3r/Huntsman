@@ -285,10 +285,10 @@ def gospider(gospider_path, subdomains):
     return run_async(f"{gospider_path} -S {IN_FILE_PATH} --other-source -t 20 -o {OUT_DIR_PATH} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
-def waybackurls(wayback_path, subdomains):
-    input_data = lines_data_from_set(subdomains)
+def waybackurls(wayback_path):
     OUTPUT_FILE = path.join(RES_ROOT_DIR ,ENDP_WAYBACK_FILE)
-    return run_async(f"{wayback_path} | tee {OUTPUT_FILE}", shell=True, stdin=input_data, stdout=PIPE, stderr=DEVNULL)
+    SUBDOMAINS_FILE = path.join(RES_ROOT_DIR, SUB_MASTER_FILE)
+    return run_async(f"{wayback_path} | tee {OUTPUT_FILE}", shell=True, stdin=open(SUBDOMAINS_FILE, 'r'), stdout=PIPE, stderr=DEVNULL)
 
 
 def raw_subdomains(targets, token):
@@ -328,7 +328,7 @@ def endpoint_hunter_module(subdomains):
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback_proc = waybackurls(tools["waybackurls"]["path"], subdomains)
+    wayback_proc = waybackurls(tools["waybackurls"]["path"])
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')
     wayback_endpoints = lines_set_from_bytes(bytes(wayback_output, 'utf-8'))
