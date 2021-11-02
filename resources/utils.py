@@ -324,17 +324,27 @@ def raw_subdomains(targets, token):
 def endpoint_hunter_module(subdomains):
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    
     gospider_proc = gospider(tools["gospider"]["path"], subdomains)
+    
+    print("[+] Firing 'waybackurls' to hunt endpoints...")
+    time.sleep(1)
+    wayback_proc = waybackurls(tools["waybackurls"]["path"], subdomains)
+
+    wayback_output = wayback_proc.communicate()[0].decode('utf-8')
+    wayback_endpoints = lines_set_from_bytes(bytes(wayback_output, 'utf-8'))
+
     gospider_output = gospider_proc.communicate()[0].decode('utf-8')
     gospider_endpoints = lines_set_from_bytes(bytes(gospider_output, 'utf-8'))
-    endpoints_data = lines_data_from_set(gospider_endpoints)
 
-    print("[+] Retrieved gospider endpoints:")
+    all_endpoints = wayback_endpoints.union(gospider_endpoints)
+
+    print("[+] Retrieved endpoints:")
+    endpoints_data = lines_data_from_set(all_endpoints)
     print(endpoints_data)
+
     store_results(endpoints_data, path.join(RES_ROOT_DIR, ENDP_MASTER_FILE))
 
-    return gospider_endpoints
+    return all_endpoints
 
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
