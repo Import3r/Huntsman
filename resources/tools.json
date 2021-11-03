@@ -1,7 +1,6 @@
 {
     "amass": {
         "file_name": "amass",
-        "path": "",
         "req_file_name": null,
         "zipfile_name": "amass.zip",
         "remote_repo_name": "Amass",
@@ -10,7 +9,6 @@
     },
     "subdomainizer": {
         "file_name": "SubDomainizer.py",
-        "path": "",
         "req_file_name": "requirements.txt",
         "remote_repo_name": "SubDomainizer",
         "install_type": "from_repo",
@@ -18,7 +16,6 @@
     },
     "aquatone": {
         "file_name": "aquatone",
-        "path": "",
         "req_file_name": null,
         "zipfile_name": "aquatone.zip",
         "remote_repo_name": "aquatone",
@@ -27,7 +24,6 @@
     },
     "github-subdomains": {
         "file_name": "github-subdomains.py",
-        "path": "",
         "req_file_name": "requirements3.txt",
         "zipfile_name": null,
         "remote_repo_name": "github-search",
@@ -36,7 +32,6 @@
     },
     "gospider": {
         "file_name": "gospider",
-        "path": "",
         "req_file_name": null,
         "zipfile_name": null,
         "remote_repo_name": "gospider",
@@ -45,7 +40,6 @@
     },
     "waybackurls": {
         "file_name": "waybackurls",
-        "path": "",
         "req_file_name": null,
         "zipfile_name": null,
         "remote_repo_name": "waybackurls",

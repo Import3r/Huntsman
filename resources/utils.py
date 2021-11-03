@@ -20,7 +20,7 @@ def store_results(data_string, file_path):
 
 def update_install_path(tool, given_path):
     full_path = path.abspath(given_path)
-    tools[tool]["path"] = full_path
+    paths[tool] = full_path
     chmod(full_path, 0o744)
     update_json_file()
 
@@ -182,8 +182,8 @@ def check_for_tools():
     missing_tools = set()
     for tool in tools.keys():
         if tool_exists(tools[tool]["file_name"]):
-            tools[tool]["path"] = tools[tool]["file_name"]
-        elif not tool_exists(tools[tool]["path"]):
+            paths[tool] = tools[tool]["file_name"]
+        elif not tool_exists(paths[tool]):
             missing_tools.add(tool)
 
     if missing_tools:
@@ -295,14 +295,14 @@ def raw_subdomains(targets, token):
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
 
-    amass_proc = amass(tools['amass']["path"], ','.join(targets))
+    amass_proc = amass(paths['amass'], ','.join(targets))
 
     print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
     github_output = ''
     for target in targets:
         print("[+] Waiting for Amass...")
-        result = github_subdomains(tools['github-subdomains']["path"], target, token) 
+        result = github_subdomains(paths['github-subdomains'], target, token) 
         print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
         github_output += result
@@ -324,11 +324,11 @@ def raw_subdomains(targets, token):
 def endpoint_hunter_module(subdomains):
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    gospider_proc = gospider(tools["gospider"]["path"], subdomains)
+    gospider_proc = gospider(paths["gospider"], subdomains)
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback_proc = waybackurls(tools["waybackurls"]["path"])
+    wayback_proc = waybackurls(paths["waybackurls"])
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')
     wayback_endpoints = lines_set_from_bytes(bytes(wayback_output, 'utf-8'))
@@ -386,11 +386,11 @@ def start_sequence(targets, github_token, blacklist_targets):
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone_proc = aquatone(tools['aquatone']["path"])
+    aquatone_proc = aquatone(paths['aquatone'])
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer_proc = subdomainizer(tools['subdomainizer']["path"])
+    subdomainizer_proc = subdomainizer(paths['subdomainizer'])
 
     aquatone_proc.wait()
     subdomainizer_proc.wait()
