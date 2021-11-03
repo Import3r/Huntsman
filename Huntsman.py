@@ -3,6 +3,7 @@
 from resources.packages import *
 from resources.static_names import *
 from resources.utils import *
+from resources.modules import *
 
 banner = """
 
