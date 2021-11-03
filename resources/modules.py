@@ -94,9 +94,6 @@ def subdomain_hunter_module(targets, github_token, blacklist_targets):
 
 
 def start_sequence(targets, github_token, blacklist_targets):
-    print("\n\n[+] 'HUNTSMAN' sequence initiated")
-    time.sleep(2)
-
     print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
@@ -104,14 +101,6 @@ def start_sequence(targets, github_token, blacklist_targets):
     subdoms_master_file = path.join(RES_ROOT_DIR, SUB_MASTER_FILE)
 
     print("\n\n[+] Hunting live subdomains completed")
-    time.sleep(2)
-
-    print("\n\n[+] Hunting endpoints for targets initiated")
-    time.sleep(2)
-
-    all_endpoints = endpoint_hunter_module(all_subdomains, subdoms_master_file)
-
-    print("\n\n[+] Hunting endpoints for targets completed")
     time.sleep(2)
 
     print("[+] Firing 'Aquatone' to screen web apps...")
@@ -124,8 +113,13 @@ def start_sequence(targets, github_token, blacklist_targets):
     subdomainizer = Subdomainizer(paths["subdomainizer"])
     subdomainizer_proc = subdomainizer.scraper_proc(subdoms_master_file)
 
+    print("\n\n[+] Hunting endpoints for targets initiated")
+    time.sleep(2)
+
+    all_endpoints = endpoint_hunter_module(all_subdomains, subdoms_master_file)
+
+    print("\n\n[+] Hunting endpoints for targets completed")
+    time.sleep(2)
+
     aquatone_proc.wait()
     subdomainizer_proc.wait()
-
-    print("\n\n[+] 'HUNTSMAN' sequence completed")
-    time.sleep(1)
