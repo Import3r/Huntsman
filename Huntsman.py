@@ -44,12 +44,18 @@ def main():
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(RES_ROOT_DIR):
-        print('Results directory exists. exiting to avoid loss of previous reports...')
+        print('[!] Results directory exists. exiting to avoid loss of previous reports...')
         exit()
     else:
         mkdir(RES_ROOT_DIR)
 
+    print("\n\n[+] 'HUNTSMAN' sequence initiated")
+    time.sleep(2)
+
     start_sequence(targets, github_token, blacklist_targets)
+    
+    print("\n\n[+] 'HUNTSMAN' sequence completed")
+    time.sleep(1)
 
     print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")
     print("[+] Shutting down...")
