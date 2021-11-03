@@ -16,11 +16,12 @@ class GoSpider:
 
     def __init__(self, given_path) -> None:
         self.exec_path = given_path
-        self.input_file = path.join(RES_ROOT_DIR, self.input_file_name)
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
+        mkdir(self.output_dir)
+        self.input_file = path.join(self.output_dir, self.input_file_name)
 
 
     def crawler_proc(self, subdomains):
         base_endpoints = set("http://" + subdom for subdom in subdomains)
-        store_results(lines_data_from_set(base_endpoints), self.input_file_name)
+        store_results(lines_data_from_set(base_endpoints), self.input_file)
         return run_async(f"{self.exec_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
