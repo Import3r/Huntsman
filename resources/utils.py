@@ -20,7 +20,7 @@ def store_results(data_string, file_path):
 
 def update_install_path(tool, given_path):
     full_path = path.abspath(given_path)
-    paths[tool.exec_name] = full_path
+    tool.exec_path = full_path
     chmod(full_path, 0o744)
     update_json_file()
 
@@ -183,8 +183,8 @@ def check_for_tools(tools):
     for tool in tools:
         tool_name = tool.exec_name
         if tool_exists(tool_name):
-            paths[tool_name] = tool_name
-        elif not tool_exists(paths[tool_name]):
+            tool.exec_path = tool_name
+        elif not tool_exists(tool.exec_path):
             missing_tools.add(tool)
 
     if missing_tools:
