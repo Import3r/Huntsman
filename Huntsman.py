@@ -4,6 +4,7 @@ from resources.packages import *
 from resources.static_names import *
 from resources.utils import *
 from resources.modules import *
+import resources.tools
 
 banner = """
 
@@ -45,16 +46,9 @@ def main():
         exit()
     else:
         mkdir(RES_ROOT_DIR)
-
-    tools = [
-        Amass(paths["amass"]),
-        Subdomainizer(paths["SubDomainizer.py"]),
-        Aquatone(paths["aquatone"]),
-        GithubDorkers(paths["github-subdomains.py"]),
-        GoSpider(paths["gospider"]),
-        Waybackurls(paths["waybackurls"])
-    ]
-
+    
+    tools = [resources.tools.amass, resources.tools.subdomainizer, resources.tools.aquatone, resources.tools.github_dorkers, resources.tools.gospider, resources.tools.waybackurls]
+    
     check_for_tools(tools)
 
     print("\n\n[+] 'HUNTSMAN' sequence initiated")

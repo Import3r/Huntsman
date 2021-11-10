@@ -4,12 +4,7 @@ from resources.packages import *
 from resources.static_names import *
 from resources.json_handlers import *
 from resources.utils import *
-from resources.amass import Amass
-from resources.gospider import GoSpider
-from resources.subdomainizer import Subdomainizer
-from resources.waybackurls import Waybackurls
-from resources.aquatone import Aquatone
-from resources.github_dorkers import GithubDorkers
+import resources.tools
 
 
 def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
@@ -48,12 +43,12 @@ def raw_subdomains(amass, github_dorkers, targets, token):
 def endpoint_hunter_module(subdomains, subdoms_file):
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    gospider = GoSpider(paths["gospider"])
+    gospider = resources.tools.gospider
     gospider_proc = gospider.crawler_proc(subdomains)
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback = Waybackurls(paths["waybackurls"])
+    wayback = resources.tools.waybackurls
     wayback_proc = wayback.enumerator_proc(subdoms_file)
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')
@@ -74,8 +69,8 @@ def endpoint_hunter_module(subdomains, subdoms_file):
 
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
-    amass = Amass(paths["amass"])
-    github_dorkers = GithubDorkers(paths["github-subdomains.py"])
+    amass = resources.tools.amass
+    github_dorkers = resources.tools.github_dorkers
 
     # Collect subdomains list with unique destinations
     all_subdomains, amass_subdoms, github_subdoms = raw_subdomains(amass, github_dorkers, targets, github_token)
@@ -105,12 +100,12 @@ def start_sequence(targets, github_token, blacklist_targets):
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone = Aquatone(paths["aquatone"])
+    aquatone = resources.tools.aquatone
     aquatone_proc = aquatone.snapper_proc(subdoms_master_file)
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = Subdomainizer(paths["SubDomainizer.py"])
+    subdomainizer = resources.tools.subdomainizer
     subdomainizer_proc = subdomainizer.scraper_proc(subdoms_master_file)
 
     print("\n\n[+] Hunting endpoints for targets initiated")
