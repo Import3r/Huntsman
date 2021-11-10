@@ -75,7 +75,7 @@ def endpoint_hunter_module(subdomains, subdoms_file):
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
     amass = Amass(paths["amass"])
-    github_dorkers = GithubDorkers(paths["github-subdomains"])
+    github_dorkers = GithubDorkers(paths["github-subdomains.py"])
 
     # Collect subdomains list with unique destinations
     all_subdomains, amass_subdoms, github_subdoms = raw_subdomains(amass, github_dorkers, targets, github_token)
@@ -110,7 +110,7 @@ def start_sequence(targets, github_token, blacklist_targets):
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = Subdomainizer(paths["subdomainizer"])
+    subdomainizer = Subdomainizer(paths["SubDomainizer.py"])
     subdomainizer_proc = subdomainizer.scraper_proc(subdoms_master_file)
 
     print("\n\n[+] Hunting endpoints for targets initiated")
