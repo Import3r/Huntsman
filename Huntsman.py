@@ -42,7 +42,8 @@ def main():
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(RES_ROOT_DIR):
-        print('[!] Results directory exists. exiting to avoid loss of previous reports...')
+        print("[!] Results directory exists. Move or delete '" + RES_ROOT_DIR + "' to initiate.")
+        print("[!] Exiting to avoid loss of previous results...")
         exit()
     else:
         mkdir(RES_ROOT_DIR)
