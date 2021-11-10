@@ -25,7 +25,7 @@ def update_install_path(tool, new_path):
     with open(PATHS_JSON_FILE, 'r') as json_file:
         paths = json.load(json_file)
         if tool.exec_name in paths.keys():
-            paths[tool.exec_name] = new_path
+            paths[tool.exec_name] = full_path
         else:
             print("[X] Failed to update the install path for '" + tool.exec_name + "' - tool does not exist.\nexiting...")
             exit()
