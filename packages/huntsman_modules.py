@@ -31,7 +31,7 @@ def raw_subdomains(amass, github_dorkers, targets, token):
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
     amass_output = amass_proc.communicate()[0].decode('utf-8')
 
-    print("[+] Retrieved Amass subdomains:")
+    print("[+] Retrieved Amass subdomains:\n")
     print(amass_output)
     amass_subdoms = lines_set_from_bytes(bytes(amass_output, 'utf-8'))
 
@@ -59,7 +59,7 @@ def endpoint_hunter_module(subdomains, subdoms_file):
 
     all_endpoints = wayback_endpoints.union(gospider_endpoints)
 
-    print("[+] Retrieved endpoints:")
+    print("[+] Retrieved endpoints:\n")
     endpoints_data = lines_data_from_set(all_endpoints)
     print(endpoints_data)
 
