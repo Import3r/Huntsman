@@ -2,7 +2,7 @@
 
 from packages.package_imports import *
 from packages.static_paths import *
-
+import packages.json_handler
 
 def lines_set_from_bytes(data):
     return set(data.decode('utf-8').strip().split('\n'))
@@ -21,16 +21,10 @@ def update_install_path(tool, new_path):
     full_path = path.abspath(new_path)
     tool.exec_path = full_path
     chmod(full_path, 0o744)
-
-    with open(PATHS_JSON_FILE, 'r') as json_file:
-        paths = json.load(json_file)
-        if tool.exec_name in paths.keys():
-            paths[tool.exec_name] = full_path
-        else:
-            print("[X] Failed to update the install path for '" + tool.exec_name + "' - tool does not exist.\nexiting...")
-            exit()
-    with open(PATHS_JSON_FILE, 'w') as json_file:
-        json.dump(paths, json_file, indent=4)
+    
+    paths = packages.json_handler.read_from(PATHS_JSON_FILE)
+    paths[tool.exec_name] = full_path
+    packages.json_handler.write_data_to(PATHS_JSON_FILE, paths)
 
 
 def install_go_package(tool):

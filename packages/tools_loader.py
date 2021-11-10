@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import packages.json_handler
 from packages.package_imports import *
 from packages.static_paths import *
 from packages.tools.amass import Amass
@@ -9,9 +10,8 @@ from packages.tools.waybackurls import Waybackurls
 from packages.tools.aquatone import Aquatone
 from packages.tools.github_dorkers import GithubDorkers
 
-with open(PATHS_JSON_FILE, 'r') as json_file:
-    paths = json.load(json_file)
-    
+paths = packages.json_handler.read_from(PATHS_JSON_FILE)
+
 amass = Amass(paths["amass"])
 subdomainizer = Subdomainizer(paths["SubDomainizer.py"])
 aquatone = Aquatone(paths["aquatone"])
