@@ -16,7 +16,7 @@ class Subdomainizer:
 
 
     def __init__(self, given_path) -> None:
-        mkdir(path.join(RES_ROOT_DIR, self.results_dir_name))
+        makedirs(path.join(RES_ROOT_DIR, self.results_dir_name), exist_ok = True)
         self.exec_path = given_path
         self.subs_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.subs_file_name)
         self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 
