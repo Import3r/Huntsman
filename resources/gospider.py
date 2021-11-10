@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from genericpath import exists
 from resources.packages import *
 from resources.static_names import RES_ROOT_DIR
 from resources.utils import store_results, lines_data_from_set
@@ -17,7 +18,7 @@ class GoSpider:
     def __init__(self, given_path) -> None:
         self.exec_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
-        mkdir(self.output_dir)
+        makedirs(self.output_dir, exist_ok = True)
         self.input_file = path.join(self.output_dir, self.input_file_name)
 
 
