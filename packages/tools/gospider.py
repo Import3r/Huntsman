@@ -1,9 +1,9 @@
 #! /usr/bin/python3
 
 from genericpath import exists
-from resources.packages import *
-from resources.static_names import RES_ROOT_DIR
-from resources.utils import store_results, lines_data_from_set
+from packages.package_imports import *
+from packages.static_paths import RES_ROOT_DIR
+from packages.common_utils import store_results, lines_data_from_set
 
 
 class GoSpider:

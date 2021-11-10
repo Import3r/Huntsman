@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
-from resources.packages import *
-from resources.static_names import RES_ROOT_DIR
+from packages.package_imports import *
+from packages.static_paths import RES_ROOT_DIR
 
 class Amass:
     install_type = "compiled"

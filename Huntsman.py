@@ -1,10 +1,10 @@
 #! /usr/bin/python3
 
-from resources.packages import *
-from resources.static_names import *
-from resources.utils import *
-from resources.modules import *
-import resources.tools
+from packages.package_imports import *
+from packages.static_paths import *
+from packages.common_utils import *
+from packages.huntsman_modules import *
+import packages.tools_loader
 
 banner = """
 
@@ -48,12 +48,12 @@ def main():
         mkdir(RES_ROOT_DIR)
     
     tools = [
-        resources.tools.amass,
-        resources.tools.subdomainizer,
-        resources.tools.aquatone,
-        resources.tools.github_dorkers,
-        resources.tools.gospider,
-        resources.tools.waybackurls
+        packages.tools_loader.amass,
+        packages.tools_loader.subdomainizer,
+        packages.tools_loader.aquatone,
+        packages.tools_loader.github_dorkers,
+        packages.tools_loader.gospider,
+        packages.tools_loader.waybackurls
     ]
     
     check_for_tools(tools)

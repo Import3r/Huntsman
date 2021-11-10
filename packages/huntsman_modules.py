@@ -1,9 +1,9 @@
 #! /usr/bin/python3
 
-from resources.packages import *
-from resources.static_names import *
-from resources.utils import *
-import resources.tools
+from packages.package_imports import *
+from packages.static_paths import *
+from packages.common_utils import *
+import packages.tools_loader
 
 
 def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
@@ -42,12 +42,12 @@ def raw_subdomains(amass, github_dorkers, targets, token):
 def endpoint_hunter_module(subdomains, subdoms_file):
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    gospider = resources.tools.gospider
+    gospider = packages.tools_loader.gospider
     gospider_proc = gospider.crawler_proc(subdomains)
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback = resources.tools.waybackurls
+    wayback = packages.tools_loader.waybackurls
     wayback_proc = wayback.enumerator_proc(subdoms_file)
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')
@@ -62,14 +62,14 @@ def endpoint_hunter_module(subdomains, subdoms_file):
     endpoints_data = lines_data_from_set(all_endpoints)
     print(endpoints_data)
 
-    store_results(endpoints_data, path.join(RES_ROOT_DIR, ENDP_MASTER_FILE))
+    store_results(endpoints_data, ENDP_MASTER_FILE)
 
     return all_endpoints
 
 
 def subdomain_hunter_module(targets, github_token, blacklist_targets):
-    amass = resources.tools.amass
-    github_dorkers = resources.tools.github_dorkers
+    amass = packages.tools_loader.amass
+    github_dorkers = packages.tools_loader.github_dorkers
 
     # Collect subdomains list with unique destinations
     all_subdomains, amass_subdoms, github_subdoms = raw_subdomains(amass, github_dorkers, targets, github_token)
@@ -83,7 +83,7 @@ def subdomain_hunter_module(targets, github_token, blacklist_targets):
     time.sleep(1)
     store_results(lines_data_from_set(github_subdoms), github_dorkers.output_file)
     store_results(lines_data_from_set(amass_subdoms), amass.output_file)
-    store_results(lines_data_from_set(unique_targets), path.join(RES_ROOT_DIR, SUB_MASTER_FILE))
+    store_results(lines_data_from_set(unique_targets), SUB_MASTER_FILE)
     return unique_targets
 
 
@@ -92,25 +92,24 @@ def start_sequence(targets, github_token, blacklist_targets):
     time.sleep(2)
 
     all_subdomains = subdomain_hunter_module(targets, github_token, blacklist_targets)
-    subdoms_master_file = path.join(RES_ROOT_DIR, SUB_MASTER_FILE)
 
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone = resources.tools.aquatone
-    aquatone_proc = aquatone.snapper_proc(subdoms_master_file)
+    aquatone = packages.tools_loader.aquatone
+    aquatone_proc = aquatone.snapper_proc(SUB_MASTER_FILE)
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = resources.tools.subdomainizer
-    subdomainizer_proc = subdomainizer.scraper_proc(subdoms_master_file)
+    subdomainizer = packages.tools_loader.subdomainizer
+    subdomainizer_proc = subdomainizer.scraper_proc(SUB_MASTER_FILE)
 
     print("\n\n[+] Hunting endpoints for targets initiated")
     time.sleep(2)
 
-    all_endpoints = endpoint_hunter_module(all_subdomains, subdoms_master_file)
+    all_endpoints = endpoint_hunter_module(all_subdomains, SUB_MASTER_FILE)
 
     print("\n\n[+] Hunting endpoints for targets completed")
     time.sleep(2)

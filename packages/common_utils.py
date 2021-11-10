@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
-from resources.packages import *
-from resources.static_names import *
+from packages.package_imports import *
+from packages.static_paths import *
 
 
 def lines_set_from_bytes(data):
@@ -22,20 +22,20 @@ def update_install_path(tool, new_path):
     tool.exec_path = full_path
     chmod(full_path, 0o744)
 
-    with open(path.join(path.dirname(arg[0]), HM_PKGS_DIR ,PATHS_JSON_FILE), 'r') as json_file:
+    with open(PATHS_JSON_FILE, 'r') as json_file:
         paths = json.load(json_file)
         if tool.exec_name in paths.keys():
             paths[tool.exec_name] = new_path
         else:
             print("[X] Failed to update the install path for '" + tool.exec_name + "' - tool does not exist.\nexiting...")
             exit()
-    with open(path.join(path.dirname(arg[0]), HM_PKGS_DIR ,PATHS_JSON_FILE), 'w') as json_file:
+    with open(PATHS_JSON_FILE, 'w') as json_file:
         json.dump(paths, json_file, indent=4)
 
 
 def install_go_package(tool):
     url = tool.remote_repo_url
-    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     file_name = tool.exec_name
     binary_path = path.join(path.expanduser("~"),"go","bin",file_name)
     makedirs(install_path, exist_ok=True)
@@ -51,19 +51,19 @@ def install_go_package(tool):
 
 def install_repo_python3(tool):
     url = tool.remote_repo_url
-    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     req_name = tool.req_file_name
     file_name = tool.exec_name
     
     if not path.exists(install_path):
-        git.cmd.Git(TOOLS_DIR).clone(url)
+        git.cmd.Git(INST_TOOLS_DIR).clone(url)
     run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)], stderr=STDOUT)
     update_install_path(tool, path.join(install_path, file_name))
 
 
 def install_compiled_zip(tool):
     url = tool.compiled_zip_url
-    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     zip_name = tool.zipfile_name
     file_name = tool.exec_name
 
@@ -81,7 +81,7 @@ def install_compiled_zip(tool):
 
 
 def auto_install(required_tools):
-    makedirs(TOOLS_DIR, exist_ok=True)
+    makedirs(INST_TOOLS_DIR, exist_ok=True)
     for tool in required_tools:
         try:
             if tool.install_type == "compiled":
@@ -167,7 +167,7 @@ def offer_browser():
                 install_browser("chromium-browser")
                 return
             else:
-                deb_pkg = path.join(TOOLS_DIR, "google-chrome.deb")
+                deb_pkg = path.join(INST_TOOLS_DIR, "google-chrome.deb")
                 wget.download("https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", deb_pkg)
                 install_browser("./" + deb_pkg)
                 return
