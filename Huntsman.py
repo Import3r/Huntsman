@@ -47,7 +47,14 @@ def main():
     else:
         mkdir(RES_ROOT_DIR)
     
-    tools = [resources.tools.amass, resources.tools.subdomainizer, resources.tools.aquatone, resources.tools.github_dorkers, resources.tools.gospider, resources.tools.waybackurls]
+    tools = [
+        resources.tools.amass,
+        resources.tools.subdomainizer,
+        resources.tools.aquatone,
+        resources.tools.github_dorkers,
+        resources.tools.gospider,
+        resources.tools.waybackurls
+    ]
     
     check_for_tools(tools)
 
