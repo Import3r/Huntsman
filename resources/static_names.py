@@ -1,4 +1,3 @@
-TOOLS_JSON_FILE = 'tools.json'
 PATHS_JSON_FILE = 'paths.json'
 HM_PKGS_DIR = 'resources'
 TOOLS_DIR = 'installed_tools'

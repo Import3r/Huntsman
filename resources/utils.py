@@ -20,15 +20,15 @@ def store_results(data_string, file_path):
 
 def update_install_path(tool, given_path):
     full_path = path.abspath(given_path)
-    paths[tool] = full_path
+    paths[tool.exec_name] = full_path
     chmod(full_path, 0o744)
     update_json_file()
 
 
 def install_go_package(tool):
-    url = tools[tool]["install_url"]
-    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
-    file_name = tools[tool]["file_name"]
+    url = tool.remote_repo_url
+    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    file_name = tool.exec_name
     binary_path = path.join(path.expanduser("~"),"go","bin",file_name)
     makedirs(install_path, exist_ok=True)
     run(f"GO111MODULE=on go get -u {url}", shell=True, stderr=STDOUT)
@@ -42,10 +42,10 @@ def install_go_package(tool):
 
 
 def install_repo_python3(tool):
-    url = tools[tool]["install_url"]
-    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
-    req_name = tools[tool]["req_file_name"]
-    file_name = tools[tool]["file_name"]
+    url = tool.remote_repo_url
+    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    req_name = tool.req_file_name
+    file_name = tool.exec_name
     
     if not path.exists(install_path):
         git.cmd.Git(TOOLS_DIR).clone(url)
@@ -54,10 +54,10 @@ def install_repo_python3(tool):
 
 
 def install_compiled_zip(tool):
-    url = tools[tool]["install_url"]
-    install_path = path.join(TOOLS_DIR, tools[tool]["remote_repo_name"])
-    zip_name = tools[tool]["zipfile_name"]
-    file_name = tools[tool]["file_name"]
+    url = tool.compiled_zip_url
+    install_path = path.join(TOOLS_DIR, tool.remote_repo_name)
+    zip_name = tool.zipfile_name
+    file_name = tool.exec_name
 
     makedirs(install_path, exist_ok=True)
     wget.download(url, path.join(install_path, zip_name))
@@ -76,15 +76,15 @@ def auto_install(required_tools):
     makedirs(TOOLS_DIR, exist_ok=True)
     for tool in required_tools:
         try:
-            if tools[tool]["install_type"] == "compiled":
+            if tool.install_type == "compiled":
                 install_compiled_zip(tool)
-            elif tools[tool]["install_type"] == "go_package":
+            elif tool.install_type == "go_package":
                 install_go_package(tool)
-            elif tools[tool]["install_type"] == "from_repo":
+            elif tool.install_type == "from_repo":
                 install_repo_python3(tool)        
 
         except Exception as e:
-            print("[X] The following exception occured when installing '" + tool + "':")
+            print("[X] The following exception occured when installing '" + tool.exec_name + "':")
             print(e)
             exit()
 
@@ -99,7 +99,7 @@ def tool_exists(tool):
 
 def ask_for_path(tool):
     while True:
-        path = input("[?] Please enter the full path for '" + tool + "': ")
+        path = input("[?] Please enter the full path for '" + tool.exec_name + "': ")
         if tool_exists(path):
             update_install_path(tool, path)
             return
@@ -172,18 +172,19 @@ def offer_browser():
 
 def warn_missing(missing_tools):
     for missing in missing_tools:
-        print("[!] missing tool: '" + missing + "'")
+        print("[!] missing tool: '" + missing.exec_name + "'")
 
 
-def check_for_tools():
+def check_for_tools(tools):
     if not tool_exists("chromium-browser") and not tool_exists("google-chrome"):
         offer_browser()
 
     missing_tools = set()
-    for tool in tools.keys():
-        if tool_exists(tools[tool]["file_name"]):
-            paths[tool] = tools[tool]["file_name"]
-        elif not tool_exists(paths[tool]):
+    for tool in tools:
+        tool_name = tool.exec_name
+        if tool_exists(tool_name):
+            paths[tool_name] = tool_name
+        elif not tool_exists(paths[tool_name]):
             missing_tools.add(tool)
 
     if missing_tools:

@@ -35,12 +35,9 @@ def main():
     targets = set(target_arg.split(','))
     blacklist_targets = set(blacklist_arg.split(','))
 
-
     # validating provided inputs
     verify_github_token(github_token)
     verify_targets_format(targets)
-
-    check_for_tools()
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(RES_ROOT_DIR):
@@ -48,6 +45,17 @@ def main():
         exit()
     else:
         mkdir(RES_ROOT_DIR)
+
+    tools = [
+        Amass(paths["amass"]),
+        Subdomainizer(paths["SubDomainizer.py"]),
+        Aquatone(paths["aquatone"]),
+        GithubDorkers(paths["github-subdomains.py"]),
+        GoSpider(paths["gospider"]),
+        Waybackurls(paths["waybackurls"])
+    ]
+
+    check_for_tools(tools)
 
     print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
