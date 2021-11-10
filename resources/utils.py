@@ -2,7 +2,6 @@
 
 from resources.packages import *
 from resources.static_names import *
-from resources.json_handlers import *
 
 
 def lines_set_from_bytes(data):
@@ -18,11 +17,20 @@ def store_results(data_string, file_path):
         f.write(data_string)
 
 
-def update_install_path(tool, given_path):
-    full_path = path.abspath(given_path)
+def update_install_path(tool, new_path):
+    full_path = path.abspath(new_path)
     tool.exec_path = full_path
     chmod(full_path, 0o744)
-    update_json_file()
+
+    with open(path.join(path.dirname(arg[0]), HM_PKGS_DIR ,PATHS_JSON_FILE), 'r') as json_file:
+        paths = json.load(json_file)
+        if tool.exec_name in paths.keys():
+            paths[tool.exec_name] = new_path
+        else:
+            print("[X] Failed to update the install path for '" + tool.exec_name + "' - tool does not exist.\nexiting...")
+            exit()
+    with open(path.join(path.dirname(arg[0]), HM_PKGS_DIR ,PATHS_JSON_FILE), 'w') as json_file:
+        json.dump(paths, json_file, indent=4)
 
 
 def install_go_package(tool):
@@ -37,7 +45,7 @@ def install_go_package(tool):
         rename(binary_path, path.join(install_path, file_name))
         update_install_path(tool, path.join(install_path, file_name))
     else:
-        print("[X] Failed to install '" + tool + "'\n exiting...")
+        print("[X] Failed to install '" + tool.exec_name + "'\nexiting...")
         exit()
 
 
@@ -68,7 +76,7 @@ def install_compiled_zip(tool):
     if path.exists(install_path):
         update_install_path(tool, path.join(install_path, relative_path))
     else:
-        print("[X] Failed to properly decompress '" + zip_name + "'\n exiting...")
+        print("[X] Failed to properly decompress '" + zip_name + "'\nexiting...")
         exit()
 
 
@@ -171,8 +179,8 @@ def offer_browser():
 
 
 def warn_missing(missing_tools):
-    for missing in missing_tools:
-        print("[!] missing tool: '" + missing.exec_name + "'")
+    for tool in missing_tools:
+        print("[!] missing tool: '" + tool.exec_name + "'")
 
 
 def check_for_tools(tools):

@@ -2,7 +2,6 @@
 
 from resources.packages import *
 from resources.static_names import *
-from resources.json_handlers import *
 from resources.utils import *
 import resources.tools
 
