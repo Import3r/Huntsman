@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.package_imports import *
-from packages.static_paths import RES_ROOT_DIR
+from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 
 class Subdomainizer:
     install_type = "from_repo"
@@ -21,7 +21,7 @@ class Subdomainizer:
         self.subs_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.subs_file_name)
         self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 
         self.cloud_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.cloud_file_name)
-
+        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
     def scraper_proc(self, subdoms_file):
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 

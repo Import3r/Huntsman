@@ -35,15 +35,14 @@ def update_install_path(tool, new_path):
 
 def install_go_package(tool):
     url = tool.remote_repo_url
-    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     file_name = tool.exec_name
     binary_path = path.join(path.expanduser("~"),"go","bin",file_name)
-    makedirs(install_path, exist_ok=True)
+    makedirs(tool.install_path, exist_ok=True)
     run(f"GO111MODULE=on go get -u {url}", shell=True, stderr=STDOUT)
 
     if path.exists(binary_path):
-        rename(binary_path, path.join(install_path, file_name))
-        update_install_path(tool, path.join(install_path, file_name))
+        rename(binary_path, path.join(tool.install_path, file_name))
+        update_install_path(tool, path.join(tool.install_path, file_name))
     else:
         print("[X] Failed to install '" + tool.exec_name + "'\nexiting...")
         exit()
@@ -51,30 +50,27 @@ def install_go_package(tool):
 
 def install_repo_python3(tool):
     url = tool.remote_repo_url
-    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     req_name = tool.req_file_name
     file_name = tool.exec_name
     
-    if not path.exists(install_path):
+    if not path.exists(tool.install_path):
         git.cmd.Git(INST_TOOLS_DIR).clone(url)
-    run([executable, "-m", "pip", "install", "-r", path.join(install_path, req_name)], stderr=STDOUT)
-    update_install_path(tool, path.join(install_path, file_name))
+    run([executable, "-m", "pip", "install", "-r", path.join(tool.install_path, req_name)], stderr=STDOUT)
+    update_install_path(tool, path.join(tool.install_path, file_name))
 
 
 def install_compiled_zip(tool):
     url = tool.compiled_zip_url
-    install_path = path.join(INST_TOOLS_DIR, tool.remote_repo_name)
     zip_name = tool.zipfile_name
     file_name = tool.exec_name
 
-    makedirs(install_path, exist_ok=True)
-    wget.download(url, path.join(install_path, zip_name))
-    with zipfile.ZipFile(path.join(install_path, zip_name), 'r') as zip_file:
+    makedirs(tool.install_path, exist_ok=True)
+    wget.download(url, path.join(tool.install_path, zip_name))
+    with zipfile.ZipFile(path.join(tool.install_path, zip_name), 'r') as zip_file:
         relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == file_name])
-        zip_file.extractall(install_path)
-    final_path = path.join(install_path, relative_path)
-    if path.exists(install_path):
-        update_install_path(tool, path.join(install_path, relative_path))
+        zip_file.extractall(tool.install_path)
+    if path.exists(tool.install_path):
+        update_install_path(tool, path.join(tool.install_path, relative_path))
     else:
         print("[X] Failed to properly decompress '" + zip_name + "'\nexiting...")
         exit()

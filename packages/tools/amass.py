@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.package_imports import *
-from packages.static_paths import RES_ROOT_DIR
+from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 
 class Amass:
     install_type = "compiled"
@@ -15,6 +15,7 @@ class Amass:
     def __init__(self, given_path) -> None:
         self.exec_path = given_path
         self.output_file = path.join(RES_ROOT_DIR, self.output_file_name)
+        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
     def enumerator_proc(self, domains):

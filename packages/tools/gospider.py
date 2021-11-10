@@ -2,7 +2,7 @@
 
 from genericpath import exists
 from packages.package_imports import *
-from packages.static_paths import RES_ROOT_DIR
+from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results, lines_data_from_set
 
 
@@ -19,6 +19,7 @@ class GoSpider:
         self.exec_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
         self.input_file = path.join(self.output_dir, self.input_file_name)
+        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
     def crawler_proc(self, subdomains):
