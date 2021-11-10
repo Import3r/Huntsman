@@ -1,7 +1,9 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
+from os import path
+from subprocess import Popen, DEVNULL
+
 
 class Aquatone:
     install_type = "compiled"
@@ -19,4 +21,4 @@ class Aquatone:
 
 
     def snapper_proc(self, subdoms_file):
-        return run_async(f"{self.exec_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
+        return Popen(f"{self.exec_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)

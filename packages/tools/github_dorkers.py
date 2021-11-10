@@ -1,7 +1,9 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
+from os import path
+from subprocess import run
+
 
 class GithubDorkers:
     install_type = "from_repo"

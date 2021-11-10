@@ -1,8 +1,14 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
-from packages.static_paths import *
+from packages.static_paths import INST_TOOLS_DIR, PATHS_JSON_FILE
 import packages.json_handler
+from os import path, rename, chmod, makedirs, geteuid
+from subprocess import run, STDOUT
+from sys import executable
+from shutil import which
+import apt, git, wget, zipfile, re, requests
+from sys import executable
+
 
 def lines_set_from_bytes(data):
     return set(data.decode('utf-8').strip().split('\n'))

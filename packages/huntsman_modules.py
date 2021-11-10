@@ -1,9 +1,10 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
-from packages.static_paths import *
+from packages.static_paths import SUB_MASTER_FILE, ENDP_MASTER_FILE
 from packages.common_utils import *
 import packages.tools_loader
+from subprocess import run
+import time
 
 
 def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):

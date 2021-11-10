@@ -1,7 +1,9 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
+from os import path
+from subprocess import Popen, PIPE, DEVNULL
+
 
 class Amass:
     install_type = "compiled"
@@ -20,4 +22,4 @@ class Amass:
 
     def enumerator_proc(self, domains):
         target_domains = ','.join(domains)
-        return run_async(f"{self.exec_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
+        return Popen(f"{self.exec_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)

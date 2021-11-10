@@ -1,10 +1,12 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
-from packages.static_paths import *
-from packages.common_utils import *
-from packages.huntsman_modules import *
+from packages.static_paths import RES_ROOT_DIR
+from packages.common_utils import verify_github_token, verify_targets_format, check_for_tools
+from packages.huntsman_modules import start_sequence
 import packages.tools_loader
+from os import path, mkdir, setpgrp, killpg 
+from sys import argv
+import time, signal
 
 banner = """
 
@@ -20,15 +22,15 @@ def main():
 
     # ensure correct usage of tool
     try:
-        target_arg = arg[1]
-        github_token = arg[2]
+        target_arg = argv[1]
+        github_token = argv[2]
         try:
-            blacklist_arg = arg[3]
+            blacklist_arg = argv[3]
         except:
             blacklist_arg = ''
     except:
         print('[!] usage:')
-        print('\n    ' + arg[0] + ' TARGET_DOMAINS' +
+        print('\n    ' + argv[0] + ' TARGET_DOMAINS' +
               ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
         print('\n[!] comma separate multi-inputs')
         exit()

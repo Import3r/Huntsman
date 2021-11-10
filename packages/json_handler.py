@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.package_imports import *
+import json
 
 
 def read_from(json_path):
