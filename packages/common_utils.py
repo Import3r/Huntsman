@@ -62,11 +62,13 @@ def install_repo_python3(tool):
 def install_compiled_zip(tool):
     url = tool.compiled_zip_url
     zip_name = tool.zipfile_name
+    zip_path = path.join(tool.install_path, zip_name)
     file_name = tool.exec_name
 
     makedirs(tool.install_path, exist_ok=True)
-    wget.download(url, path.join(tool.install_path, zip_name))
-    with zipfile.ZipFile(path.join(tool.install_path, zip_name), 'r') as zip_file:
+    if not path.exists(zip_path):
+        wget.download(url, zip_path)
+    with zipfile.ZipFile(zip_path, 'r') as zip_file:
         relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == file_name])
         zip_file.extractall(tool.install_path)
     if path.exists(tool.install_path):
