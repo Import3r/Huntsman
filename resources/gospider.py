@@ -18,11 +18,11 @@ class GoSpider:
     def __init__(self, given_path) -> None:
         self.exec_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
-        makedirs(self.output_dir, exist_ok = True)
         self.input_file = path.join(self.output_dir, self.input_file_name)
 
 
     def crawler_proc(self, subdomains):
+        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
         base_endpoints = set("http://" + subdom for subdom in subdomains)
         store_results(lines_data_from_set(base_endpoints), self.input_file)
         return run_async(f"{self.exec_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
