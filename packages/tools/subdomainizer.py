@@ -1,8 +1,11 @@
 #! /usr/bin/python3
 
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
+from packages.common_utils import update_install_path
 from os import path, makedirs
-from subprocess import Popen, PIPE
+from sys import executable
+from subprocess import Popen, run, STDOUT, PIPE
+import git
 
 
 class Subdomainizer:
@@ -24,8 +27,16 @@ class Subdomainizer:
         self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 
         self.cloud_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.cloud_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.req_file = path.join(self.install_path, self.req_file_name)
 
 
     def scraper_proc(self, subdoms_file):
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
         return Popen(f"{self.exec_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=PIPE)
+    
+    
+    def install(self):
+        if not path.exists(self.install_path):
+            git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
+        run([executable, "-m", "pip", "install", "-r", self.req_file], stderr=STDOUT)
+        update_install_path(self, path.join(self.install_path, self.exec_name))
