@@ -8,7 +8,6 @@ from subprocess import Popen, run, PIPE, STDOUT, DEVNULL
 
 
 class GoSpider:
-    install_type = "go_package"
     exec_name = "gospider"
     results_dir_name = "gospider_results"
     input_file_name = "subdom-urls.temp"

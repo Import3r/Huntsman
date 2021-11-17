@@ -7,7 +7,6 @@ from subprocess import Popen, run, PIPE, STDOUT, DEVNULL
 
 
 class Waybackurls:
-    install_type = "go_package"
     exec_name = "waybackurls"
     output_file_name = "endpoints.waybackurls"
     remote_repo_name = "waybackurls"

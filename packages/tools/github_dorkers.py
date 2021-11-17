@@ -9,7 +9,6 @@ import git
 
 
 class GithubDorkers:
-    install_type = "from_repo"
     exec_name = "github-subdomains.py"
     req_file_name = "requirements3.txt"
     output_file_name = "subdomains.github"

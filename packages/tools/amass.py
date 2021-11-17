@@ -8,7 +8,6 @@ import zipfile, wget
 
 
 class Amass:
-    install_type = "compiled"
     exec_name = "amass"
     output_file_name = "subdomains.amass"
     remote_repo_name = "Amass"

@@ -9,7 +9,6 @@ import git
 
 
 class Subdomainizer:
-    install_type = "from_repo"
     exec_name = "SubDomainizer.py"
     req_file_name = "requirements.txt"
     results_dir_name = "subdomainizer_results"

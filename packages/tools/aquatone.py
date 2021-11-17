@@ -8,7 +8,6 @@ import zipfile, wget
 
 
 class Aquatone:
-    install_type = "compiled"
     exec_name = "aquatone"
     results_dir_name = "aquatone_results"
     remote_repo_name = "aquatone"
