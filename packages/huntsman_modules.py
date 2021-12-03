@@ -7,10 +7,6 @@ from subprocess import run
 import time
 
 
-def subdomains_altdns(altdns_path, source_file, wordlist_path, output_file):
-    return run([altdns_path, '-i', source_file, '-o', output_file, '-w', wordlist_path])
-
-
 def raw_subdomains(amass, github_dorkers, targets, token):
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
