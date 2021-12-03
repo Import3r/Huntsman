@@ -1,9 +1,10 @@
 #! /usr/bin/python3
 
-from packages.static_paths import RES_ROOT_DIR
+from packages.static_paths import RES_ROOT_DIR, SUB_MASTER_FILE
 from packages.common_utils import verify_github_token, verify_targets_format, check_for_tools
-from packages.huntsman_modules import start_sequence
 import packages.tools_loader
+import packages.huntsman_hounds.subdomain_hunter as subdomain_hound
+import packages.huntsman_hounds.endpoint_hunter as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
 from sys import argv
 import time, signal
@@ -64,12 +65,28 @@ def main():
     print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
-    start_sequence(targets, github_token, blacklist_targets)
-    
-    print("\n\n[+] 'HUNTSMAN' sequence completed")
+    all_subdomains = subdomain_hound.activate(targets, github_token, blacklist_targets)
+
+    print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
+    aquatone = packages.tools_loader.aquatone
+    aquatone_proc = aquatone.snapper_proc(SUB_MASTER_FILE)
+
+    print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
+    time.sleep(1)
+    subdomainizer = packages.tools_loader.subdomainizer
+    subdomainizer_proc = subdomainizer.scraper_proc(SUB_MASTER_FILE)
+
+    all_endpoints = endpoint_hound.activate(all_subdomains, SUB_MASTER_FILE)
+
+    aquatone_proc.wait()
+    subdomainizer_proc.wait()
+
+    print("\n\n[+] 'HUNTSMAN' sequence completed")
+    time.sleep(2)
 
     print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")
+    time.sleep(1)
     print("[+] Shutting down...")
     time.sleep(2)
 
