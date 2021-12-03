@@ -2,7 +2,7 @@
 
 from packages.static_paths import RES_ROOT_DIR, SUB_MASTER_FILE
 from packages.common_utils import verify_github_token, verify_targets_format, check_for_tools
-import packages.tools_loader
+import packages.tools_loader as loaded_tools
 import packages.huntsman_hounds.subdomain_hunter as subdomain_hound
 import packages.huntsman_hounds.endpoint_hunter as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
@@ -52,12 +52,12 @@ def main():
         mkdir(RES_ROOT_DIR)
     
     tools = [
-        packages.tools_loader.amass,
-        packages.tools_loader.subdomainizer,
-        packages.tools_loader.aquatone,
-        packages.tools_loader.github_dorkers,
-        packages.tools_loader.gospider,
-        packages.tools_loader.waybackurls
+        loaded_tools.amass,
+        loaded_tools.subdomainizer,
+        loaded_tools.aquatone,
+        loaded_tools.github_dorkers,
+        loaded_tools.gospider,
+        loaded_tools.waybackurls
     ]
     
     check_for_tools(tools)
@@ -69,12 +69,12 @@ def main():
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone = packages.tools_loader.aquatone
+    aquatone = loaded_tools.aquatone
     aquatone_proc = aquatone.snapper_proc(SUB_MASTER_FILE)
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = packages.tools_loader.subdomainizer
+    subdomainizer = loaded_tools.subdomainizer
     subdomainizer_proc = subdomainizer.scraper_proc(SUB_MASTER_FILE)
 
     all_endpoints = endpoint_hound.activate(all_subdomains, SUB_MASTER_FILE)
