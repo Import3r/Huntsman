@@ -18,9 +18,7 @@ banner = """
 """
 
 
-def main():
-    print(banner)
-
+def verify_ready():
     # ensure correct usage of tool
     try:
         target_arg = argv[1]
@@ -61,6 +59,16 @@ def main():
     ]
     
     check_for_tools(tools)
+
+    print("\n\n[+] Ready to engage.\n\n")
+    time.sleep(1)
+    return (targets, blacklist_targets, github_token)
+
+
+def main():
+    print(banner)
+
+    targets, blacklist_targets, github_token = verify_ready()
 
     print("\n\n[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)

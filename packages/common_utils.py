@@ -146,8 +146,6 @@ def check_for_tools(tools):
         warn_missing(missing_tools)
         offer_install(missing_tools)
 
-    print("\n\n[+] Ready to engage.\n\n")
-
 
 def reachable(target):
     url_regex = re.fullmatch('([A-Za-z]+:\/\/)*([A-Za-z0-9\-\.]+).*', target)
