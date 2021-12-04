@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.static_paths import SUB_MASTER_FILE, ENDP_MASTER_FILE
+from packages.static_paths import SUB_MASTER_FILE
 from packages.common_utils import *
 import packages.tools_loader
 import time
