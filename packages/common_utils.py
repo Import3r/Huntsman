@@ -114,6 +114,7 @@ def offer_browser():
                 install_browser("chromium-browser")
                 return
             else:
+                makedirs(INST_TOOLS_DIR, exist_ok=True)
                 deb_pkg = path.join(INST_TOOLS_DIR, "google-chrome.deb")
                 wget.download("https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", deb_pkg)
                 install_browser("./" + deb_pkg)
