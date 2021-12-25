@@ -1,12 +1,14 @@
 #! /usr/bin/python3
 
-from packages.static_paths import ENDP_MASTER_FILE
+from packages.static_paths import ENDP_HOUND_RES_DIR, ENDP_MASTER_FILE
 from packages.common_utils import *
 import packages.tools_loader
 import time
 
 
 def activate(subdomains, subdoms_file):
+    makedirs(ENDP_HOUND_RES_DIR, exist_ok=True)
+    
     print("\n\n[+] Hunting endpoints for targets initiated")
     time.sleep(2)
     
