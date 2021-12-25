@@ -10,8 +10,8 @@ def activate(targets, github_token, blacklist_targets):
     print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
-    amass = packages.tools_loader.amass
-    github_dorkers = packages.tools_loader.github_dorkers
+    amass = packages.tools_loader.loaded_tools["amass"]
+    github_dorkers = packages.tools_loader.loaded_tools["github_dorkers"]
 
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)

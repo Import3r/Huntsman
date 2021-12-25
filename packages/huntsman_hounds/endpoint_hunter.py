@@ -12,12 +12,12 @@ def activate(subdomains, subdoms_file):
     
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    gospider = packages.tools_loader.gospider
+    gospider = packages.tools_loader.loaded_tools["gospider"]
     gospider_proc = gospider.crawler_proc(subdomains)
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback = packages.tools_loader.waybackurls
+    wayback = packages.tools_loader.loaded_tools["waybackurls"]
     wayback_proc = wayback.enumerator_proc(subdoms_file)
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')
