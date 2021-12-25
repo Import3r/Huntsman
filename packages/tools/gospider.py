@@ -1,6 +1,5 @@
 #! /usr/bin/python3
 
-from genericpath import exists
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results, lines_data_from_set, update_install_path
 from os import path, makedirs, rename

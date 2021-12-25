@@ -2,12 +2,10 @@
 
 from packages.static_paths import INST_TOOLS_DIR, PATHS_JSON_FILE
 import packages.json_handler
-from os import path, rename, chmod, makedirs, geteuid
+from os import path, chmod, makedirs, geteuid
 from subprocess import run, STDOUT
-from sys import executable
 from shutil import which
-import apt, git, wget, zipfile, re, requests
-from sys import executable
+import apt, wget, re, requests
 
 
 def lines_set_from_bytes(data):
