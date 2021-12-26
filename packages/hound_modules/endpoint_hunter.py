@@ -2,7 +2,7 @@
 
 from packages.static_paths import ENDP_HOUND_RES_DIR, ENDP_MASTER_FILE
 from packages.common_utils import *
-import packages.tools_loader
+import packages.asset_loader
 import time
 
 
@@ -14,12 +14,12 @@ def activate(subdomains, subdoms_file):
     
     print("[+] Firing 'gospider' to hunt endpoints...")
     time.sleep(1)
-    gospider = packages.tools_loader.loaded_tools["gospider"]
+    gospider = packages.asset_loader.loaded_assets["gospider"]
     gospider_proc = gospider.crawler_proc(subdomains)
     
     print("[+] Firing 'waybackurls' to hunt endpoints...")
     time.sleep(1)
-    wayback = packages.tools_loader.loaded_tools["waybackurls"]
+    wayback = packages.asset_loader.loaded_assets["waybackurls"]
     wayback_proc = wayback.enumerator_proc(subdoms_file)
 
     wayback_output = wayback_proc.communicate()[0].decode('utf-8')

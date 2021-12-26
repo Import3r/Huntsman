@@ -8,7 +8,7 @@ import zipfile, wget
 
 
 class Aquatone:
-    exec_name = "aquatone"
+    asset_name = "aquatone"
     results_dir_name = "aquatone_results"
     remote_repo_name = "aquatone"
     zipfile_name = "aquatone.zip"
@@ -16,13 +16,13 @@ class Aquatone:
 
 
     def __init__(self, given_path) -> None:
-        self.exec_path = given_path
+        self.asset_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
     def snapper_proc(self, subdoms_file):
-        return Popen(f"{self.exec_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
+        return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
 
 
     def install(self):
@@ -32,7 +32,7 @@ class Aquatone:
             wget.download(self.compiled_zip_url, zip_path)
 
         with zipfile.ZipFile(zip_path, 'r') as zip_file:
-            relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == self.exec_name])
+            relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == self.asset_name])
             zip_file.extractall(self.install_path)
         
         if path.exists(self.install_path):

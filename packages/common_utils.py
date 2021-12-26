@@ -21,23 +21,23 @@ def store_results(data_string, file_path):
         f.write(data_string)
 
 
-def update_install_path(tool, new_path):
+def update_install_path(asset, new_path):
     full_path = path.abspath(new_path)
-    tool.exec_path = full_path
+    asset.asset_path = full_path
     chmod(full_path, 0o744)
     
     paths = packages.json_handler.read_from(PATHS_JSON_FILE)
-    paths[tool.exec_name] = full_path
+    paths[asset.asset_name] = full_path
     packages.json_handler.write_data_to(PATHS_JSON_FILE, paths)
 
 
-def auto_install(required_tools):
+def auto_install(required_assets):
     makedirs(INST_TOOLS_DIR, exist_ok=True)
-    for tool in required_tools:
+    for asset in required_assets:
         try:
-            tool.install()
+            asset.install()
         except Exception as e:
-            print("[X] The following exception occured when installing '" + tool.exec_name + "':")
+            print("[X] The following exception occured when installing '" + asset.asset_name + "':")
             print(e)
             exit()
 
@@ -46,46 +46,46 @@ def available_in_apt(pkg_name):
     return apt.Cache().get(pkg_name) is not None
 
 
-def tool_exists(tool):
-    return which(tool) is not None or path.exists(tool)
+def asset_available(asset):
+    return which(asset) is not None or path.exists(asset)
 
 
-def ask_for_path(tool):
+def ask_for_path(asset):
     while True:
-        path = input("[?] Please enter the full path for '" + tool.exec_name + "': ")
-        if tool_exists(path):
-            update_install_path(tool, path)
+        path = input("[?] Please enter the full path for '" + asset.asset_name + "': ")
+        if asset_available(path):
+            update_install_path(asset, path)
             return
         else:
             print("[!] Invalid path.")
 
 
-def offer_store_paths(required_tools):
+def offer_to_store_paths(required_assets):
     while True:
-        choice = input("[?] Would you like to enter the path for each tool you have manually? (Y)es, (N)o: ")
+        choice = input("[?] Would you like to enter the path for each asset you have manually? (Y)es, (N)o: ")
         if choice.upper() == 'Y':
-            for tool in required_tools:
-                ask_for_path(tool)   
-            print("[+] Paths for tools were saved successfully.")
+            for asset in required_assets:
+                ask_for_path(asset)   
+            print("[+] Paths for assets were saved successfully.")
             return
         elif choice.upper() == 'N':
-            print("[!] Install the missing tools manually, or run the script again. Bye!")
+            print("[!] Install the missing assets manually, or run the script again. Bye!")
             exit()
         else:
             print("[!] Please enter 'Y' or 'N' only.")
 
 
-def offer_install(required_tools):
+def offer_install(required_assets):
     while True:
-        choice = input("[?] Would you like me to pull the remaining tools for you? (Y)es, (N)o, (Q)uit: ")
+        choice = input("[?] Would you like me to pull the remaining assets for you? (Y)es, (N)o, (Q)uit: ")
         if choice.upper() == 'Y':
-            auto_install(required_tools)
+            auto_install(required_assets)
             return
         elif choice.upper() == 'N':
-            offer_store_paths(required_tools)
+            offer_to_store_paths(required_assets)
             return
         elif choice.upper() == 'Q':
-            print("[!] Install the missing tools manually, or run the script again. Bye!")
+            print("[!] Install the missing assets manually, or run the script again. Bye!")
             exit()
         else:
             print("[!] Please enter 'Y', 'N', or 'Q' only.")
@@ -124,26 +124,26 @@ def offer_browser():
             print("[!] Please enter 'Y' or 'N' only.")
 
 
-def warn_missing(missing_tools):
-    for tool in missing_tools:
-        print("[!] missing tool: '" + tool.exec_name + "'")
+def warn_missing(missing_assets):
+    for asset in missing_assets:
+        print("[!] missing asset: '" + asset.asset_name + "'")
 
 
-def check_for_tools(tools):
-    if not tool_exists("chromium-browser") and not tool_exists("google-chrome"):
+def check_for_assets(assets):
+    if not asset_available("chromium-browser") and not asset_available("google-chrome"):
         offer_browser()
 
-    missing_tools = set()
-    for tool in tools:
-        tool_name = tool.exec_name
-        if tool_exists(tool_name):
-            tool.exec_path = tool_name
-        elif not tool_exists(tool.exec_path):
-            missing_tools.add(tool)
+    missing_assets = set()
+    for asset in assets:
+        asset_name = asset.asset_name
+        if asset_available(asset_name):
+            asset.asset_path = asset_name
+        elif not asset_available(asset.asset_path):
+            missing_assets.add(asset)
 
-    if missing_tools:
-        warn_missing(missing_tools)
-        offer_install(missing_tools)
+    if missing_assets:
+        warn_missing(missing_assets)
+        offer_install(missing_assets)
 
 
 def reachable(target):

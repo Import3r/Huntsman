@@ -2,7 +2,7 @@
 
 from packages.static_paths import SUB_HOUND_RES_DIR, SUB_MASTER_FILE
 from packages.common_utils import *
-import packages.tools_loader
+import packages.asset_loader
 import time
 
 
@@ -12,8 +12,8 @@ def activate(targets, github_token, blacklist_targets):
     print("\n\n[+] Hunting live subdomains initiated")
     time.sleep(2)
 
-    amass = packages.tools_loader.loaded_tools["amass"]
-    github_dorkers = packages.tools_loader.loaded_tools["github_dorkers"]
+    amass = packages.asset_loader.loaded_assets["amass"]
+    github_dorkers = packages.asset_loader.loaded_assets["github_dorkers"]
 
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)

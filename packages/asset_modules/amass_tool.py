@@ -8,7 +8,7 @@ import zipfile, wget
 
 
 class Amass:
-    exec_name = "amass"
+    asset_name = "amass"
     output_file_name = "subdomains.amass"
     remote_repo_name = "Amass"
     zipfile_name = "amass.zip"
@@ -16,14 +16,14 @@ class Amass:
 
 
     def __init__(self, given_path) -> None:
-        self.exec_path = given_path
+        self.asset_path = given_path
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
     def enumerator_proc(self, domains):
         target_domains = ','.join(domains)
-        return Popen(f"{self.exec_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
+        return Popen(f"{self.asset_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
     def install(self):
@@ -33,7 +33,7 @@ class Amass:
             wget.download(self.compiled_zip_url, zip_path)
 
         with zipfile.ZipFile(zip_path, 'r') as zip_file:
-            relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == self.exec_name])
+            relative_path = ''.join([x for x in zip_file.namelist() if path.basename(x) == self.asset_name])
             zip_file.extractall(self.install_path)
         
         if path.exists(self.install_path):

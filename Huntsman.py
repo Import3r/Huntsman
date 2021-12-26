@@ -1,8 +1,8 @@
 #! /usr/bin/python3
 
 from packages.static_paths import RES_ROOT_DIR, SUB_MASTER_FILE
-from packages.common_utils import verify_github_token, verify_targets_format, check_for_tools
-import packages.tools_loader
+from packages.common_utils import verify_github_token, verify_targets_format, check_for_assets
+import packages.asset_loader
 import packages.hound_modules.subdomain_hunter as subdomain_hound
 import packages.hound_modules.endpoint_hunter as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
@@ -19,7 +19,7 @@ banner = """
 
 
 def verify_ready():
-    # ensure correct usage of tool
+    # ensure correct usage of huntsman
     try:
         target_arg = argv[1]
         github_token = argv[2]
@@ -49,9 +49,9 @@ def verify_ready():
     else:
         mkdir(RES_ROOT_DIR)
     
-    tools = list(packages.tools_loader.loaded_tools.values())
+    assets = list(packages.asset_loader.loaded_assets.values())
     
-    check_for_tools(tools)
+    check_for_assets(assets)
 
     print("\n\n[+] Ready to engage.\n\n")
     time.sleep(1)
@@ -70,12 +70,12 @@ def main():
 
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone = packages.tools_loader.loaded_tools["aquatone"]
+    aquatone = packages.asset_loader.loaded_assets["aquatone"]
     aquatone_proc = aquatone.snapper_proc(SUB_MASTER_FILE)
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = packages.tools_loader.loaded_tools["subdomainizer"]
+    subdomainizer = packages.asset_loader.loaded_assets["subdomainizer"]
     subdomainizer_proc = subdomainizer.scraper_proc(SUB_MASTER_FILE)
 
     all_endpoints = endpoint_hound.activate(all_subdomains, SUB_MASTER_FILE)

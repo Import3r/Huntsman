@@ -9,7 +9,7 @@ import git
 
 
 class Subdomainizer:
-    exec_name = "SubDomainizer.py"
+    asset_name = "SubDomainizer.py"
     req_file_name = "requirements.txt"
     results_dir_name = "subdomainizer_results"
     subs_file_name = "subdomains.subdomainizer"
@@ -20,7 +20,7 @@ class Subdomainizer:
 
 
     def __init__(self, given_path) -> None:
-        self.exec_path = given_path
+        self.asset_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
         self.subs_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.subs_file_name)
         self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 
@@ -31,7 +31,7 @@ class Subdomainizer:
 
     def scraper_proc(self, subdoms_file):
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
-        return Popen(f"{self.exec_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=PIPE)
+        return Popen(f"{self.asset_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=PIPE)
     
     
     def install(self):
@@ -39,8 +39,8 @@ class Subdomainizer:
             git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
         run([executable, "-m", "pip", "install", "-r", self.req_file], stderr=STDOUT)
         
-        if path.exists(path.join(self.install_path, self.exec_name)):
-            update_install_path(self, path.join(self.install_path, self.exec_name))
+        if path.exists(path.join(self.install_path, self.asset_name)):
+            update_install_path(self, path.join(self.install_path, self.asset_name))
         else:
-            print("[X] Failed to install '" + self.exec_name + "'\nexiting...")
+            print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()

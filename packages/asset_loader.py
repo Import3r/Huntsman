@@ -11,7 +11,7 @@ from packages.asset_modules.github_dorkers_tool import GithubDorkers
 
 paths = read_from(PATHS_JSON_FILE)
 
-loaded_tools = {
+loaded_assets = {
     "amass" : Amass( paths["amass"] if "amass" in paths.keys() else "" ),
     "subdomainizer" : Subdomainizer( paths["SubDomainizer.py"] if "SubDomainizer.py" in paths.keys() else "" ),
     "aquatone" : Aquatone( paths["aquatone"] if "aquatone" in paths.keys() else "" ),
