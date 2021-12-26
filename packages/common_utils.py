@@ -75,6 +75,19 @@ def offer_to_store_paths(required_assets):
             print("[!] Please enter 'Y' or 'N' only.")
 
 
+def install_apt_package(package):
+    install_cmd = ["apt-get", "install", package, "-y"]
+    if geteuid() != 0:
+        install_cmd = ["sudo"] + install_cmd
+    try:
+        print("[+] Installing " + package + "...")
+        run(install_cmd, stderr=STDOUT)
+    except Exception as e:
+        print("[X] The following exception occured when installing '" + package + "':")
+        print(e)
+        exit()
+
+
 def offer_install(required_assets):
     while True:
         choice = input("[?] Would you like me to pull the remaining assets for you? (Y)es, (N)o, (Q)uit: ")
@@ -91,48 +104,12 @@ def offer_install(required_assets):
             print("[!] Please enter 'Y', 'N', or 'Q' only.")
 
 
-def install_browser(package):
-    install_cmd = ["apt-get", "install", package, "-y"]
-    if geteuid() != 0:
-        install_cmd = ["sudo"] + install_cmd
-    try:
-        print("[+] Installing " + package + "...")
-        run(install_cmd, stderr=STDOUT)
-    except Exception as e:
-        print("[X] The following exception occured when installing '" + package + "':")
-        print(e)
-        exit()
-
-
-def offer_browser():
-    while True:
-        choice = input("[?] Missing google-chrome/chromium-browser required by 'aquatone'.\nDo you want to install it now? (Y)es, (N)o: ")
-        if choice.upper() == 'Y':
-            if available_in_apt("chromium-browser"):
-                install_browser("chromium-browser")
-                return
-            else:
-                makedirs(INST_TOOLS_DIR, exist_ok=True)
-                deb_pkg = path.join(INST_TOOLS_DIR, "google-chrome.deb")
-                wget.download("https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb", deb_pkg)
-                install_browser("./" + deb_pkg)
-                return
-        elif choice.upper() == 'N':
-            print("[!] Install 'google-chrome' or 'chromium-browser' manually, or run the script again. Bye!")
-            exit()
-        else:
-            print("[!] Please enter 'Y' or 'N' only.")
-
-
 def warn_missing(missing_assets):
     for asset in missing_assets:
         print("[!] missing asset: '" + asset.asset_name + "'")
 
 
 def check_for_assets(assets):
-    if not asset_available("chromium-browser") and not asset_available("google-chrome"):
-        offer_browser()
-
     missing_assets = set()
     for asset in assets:
         asset_name = asset.asset_name
