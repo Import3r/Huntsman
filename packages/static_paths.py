@@ -6,7 +6,7 @@ from sys import argv
 HM_STORAGE_DIR_NAME = 'storage'
 HM_STORAGE_DIR = HM_STORAGE_DIR_NAME
 
-PATHS_JSON_FILE_NAME = 'tools_paths.json'
+PATHS_JSON_FILE_NAME = '.inst_tools_paths.json'
 INST_TOOLS_DIR_NAME = 'installed_tools'
 PATHS_JSON_FILE = path.join(path.dirname(argv[0]), HM_STORAGE_DIR, PATHS_JSON_FILE_NAME)
 INST_TOOLS_DIR = path.join(HM_STORAGE_DIR, INST_TOOLS_DIR_NAME)
