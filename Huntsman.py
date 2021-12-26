@@ -3,8 +3,8 @@
 from packages.static_paths import RES_ROOT_DIR, SUB_MASTER_FILE
 from packages.common_utils import verify_github_token, verify_targets_format, check_for_tools
 import packages.tools_loader
-import packages.huntsman_hounds.subdomain_hunter as subdomain_hound
-import packages.huntsman_hounds.endpoint_hunter as endpoint_hound
+import packages.hound_modules.subdomain_hunter as subdomain_hound
+import packages.hound_modules.endpoint_hunter as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
 from sys import argv
 import time, signal

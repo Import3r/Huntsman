@@ -2,12 +2,12 @@
 
 from packages.json_handler import read_from
 from packages.static_paths import PATHS_JSON_FILE
-from packages.tools.amass import Amass
-from packages.tools.gospider import GoSpider
-from packages.tools.subdomainizer import Subdomainizer
-from packages.tools.waybackurls import Waybackurls
-from packages.tools.aquatone import Aquatone
-from packages.tools.github_dorkers import GithubDorkers
+from packages.asset_modules.amass_tool import Amass
+from packages.asset_modules.gospider_tool import GoSpider
+from packages.asset_modules.subdomainizer_tool import Subdomainizer
+from packages.asset_modules.waybackurls_tool import Waybackurls
+from packages.asset_modules.aquatone_tool import Aquatone
+from packages.asset_modules.github_dorkers_tool import GithubDorkers
 
 paths = read_from(PATHS_JSON_FILE)
 
