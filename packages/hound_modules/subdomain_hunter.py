@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.static_paths import SUB_HOUND_RES_DIR, SUB_MASTER_FILE
+from packages.static_paths import SUB_ALL_RAW_FILE, SUB_HOUND_RES_DIR, SUB_ALL_RSLVD_FILE
 from packages.common_utils import *
 import packages.asset_loader
 from os import makedirs
@@ -49,8 +49,9 @@ def activate(targets, github_token, blacklist_targets):
     
     targets.update(valid_format_subdoms)
     remove_blacklist(blacklist_targets, targets)
+    store_results(lines_data_from_set(targets), SUB_ALL_RAW_FILE)
     unique_targets = resolved_targets(targets)
-    store_results(lines_data_from_set(unique_targets), SUB_MASTER_FILE)
+    store_results(lines_data_from_set(unique_targets), SUB_ALL_RSLVD_FILE)
     
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)

@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.static_paths import ENDP_HOUND_RES_DIR, ENDP_MASTER_FILE
+from packages.static_paths import ENDP_HOUND_RES_DIR, ENDP_ALL_RAW_FILE
 from packages.common_utils import lines_set_from_bytes, lines_data_from_set ,store_results
 import packages.asset_loader
 from os import makedirs
@@ -35,7 +35,7 @@ def activate(subdomains, subdoms_file):
     endpoints_data = lines_data_from_set(all_endpoints)
     print(endpoints_data)
 
-    store_results(endpoints_data, ENDP_MASTER_FILE)
+    store_results(endpoints_data, ENDP_ALL_RAW_FILE)
 
     print("\n\n[+] Hunting endpoints for targets completed")
     time.sleep(2)
