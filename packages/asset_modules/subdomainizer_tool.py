@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
-from packages.common_utils import update_install_path
+from packages.install_handler import update_install_path
 from os import path, makedirs
 from sys import executable
 from subprocess import Popen, run, STDOUT, PIPE

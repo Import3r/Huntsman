@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
-from packages.common_utils import asset_available, update_install_path
+from packages.install_handler import asset_available, update_install_path
 from packages.asset_modules.chromium_browser import ChromiumBrowser
 from os import path, makedirs
 from subprocess import Popen, DEVNULL

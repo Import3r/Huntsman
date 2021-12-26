@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import INST_TOOLS_DIR
-from packages.common_utils import asset_available, available_in_apt, install_apt_package
+from packages.install_handler import asset_available, available_in_apt, install_apt_package
 from os import path, makedirs
 import wget
 

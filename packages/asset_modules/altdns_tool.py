@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import HM_WORDLISTS_DIR, RES_ROOT_DIR
-from packages.common_utils import update_install_path, asset_available
+from packages.install_handler import update_install_path, asset_available
 from os import path
 from sys import executable
 from subprocess import run, STDOUT

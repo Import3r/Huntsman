@@ -1,7 +1,8 @@
 #! /usr/bin/python3
 
 from packages.static_paths import RES_ROOT_DIR, SUB_MASTER_FILE
-from packages.common_utils import verify_github_token, verify_targets_format, check_for_assets
+from packages.common_utils import valid_github_token, is_valid_domain_format
+from packages.install_handler import check_for_assets
 import packages.asset_loader
 import packages.hound_modules.subdomain_hunter as subdomain_hound
 import packages.hound_modules.endpoint_hunter as endpoint_hound
@@ -37,9 +38,14 @@ def verify_ready():
     targets = set(target_arg.split(','))
     blacklist_targets = set(blacklist_arg.split(','))
 
-    # validating provided inputs
-    verify_github_token(github_token)
-    verify_targets_format(targets)
+    if not valid_github_token(github_token):
+        print("[X] Faulty Github token, please provide a valid one")
+        exit()
+
+    for target in targets:
+        if not is_valid_domain_format(target):
+            print("[X] The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
+            exit()
 
     # checking for previous runs of 'Huntsman'
     if path.isdir(RES_ROOT_DIR):

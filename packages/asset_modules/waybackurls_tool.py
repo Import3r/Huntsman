@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import ENDP_HOUND_RES_DIR, INST_TOOLS_DIR
-from packages.common_utils import update_install_path
+from packages.install_handler import update_install_path
 from os import path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT, DEVNULL
 
