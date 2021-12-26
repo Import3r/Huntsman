@@ -31,4 +31,9 @@ class GithubDorkers:
         if not path.exists(self.install_path):
             git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
         run([executable, "-m", "pip", "install", "-r", self.req_file], stderr=STDOUT)
-        update_install_path(self, path.join(self.install_path, self.exec_name))
+        
+        if path.exists(path.join(self.install_path, self.exec_name)):
+            update_install_path(self, path.join(self.install_path, self.exec_name))
+        else:
+            print("[X] Failed to install '" + self.exec_name + "'\nexiting...")
+            exit()
