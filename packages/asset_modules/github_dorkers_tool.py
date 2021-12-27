@@ -4,7 +4,7 @@ from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
 from os import path
 from sys import executable
-from subprocess import run, STDOUT
+from subprocess import PIPE, Popen, run, STDOUT
 import git
 
 
@@ -23,8 +23,8 @@ class GithubDorkers:
         self.req_file = path.join(self.install_path, self.req_file_name)
 
 
-    def subdomains(self, target, gh_token):
-        return run(f"{self.asset_path} -t {gh_token} -d {target}", shell=True, capture_output=True).stdout.decode('utf-8')
+    def enumerator_proc(self, target, gh_token):
+        return Popen(f"{self.asset_path} -t {gh_token} -d {target}", shell=True, stdout=PIPE)
 
 
     def install(self):

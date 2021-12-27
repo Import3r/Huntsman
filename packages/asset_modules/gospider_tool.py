@@ -4,7 +4,7 @@ from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results, text_from_set_of_lines
 from packages.install_handler import update_install_path
 from os import path, makedirs, rename
-from subprocess import Popen, run, PIPE, STDOUT, DEVNULL
+from subprocess import Popen, run, PIPE, STDOUT
 
 
 class GoSpider:
@@ -26,7 +26,7 @@ class GoSpider:
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
         base_endpoints = set("http://" + subdom for subdom in subdomains)
         store_results(text_from_set_of_lines(base_endpoints), self.input_file)
-        return Popen(f"{self.asset_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE, stderr=DEVNULL)
+        return Popen(f"{self.asset_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
 
 
     def install(self):

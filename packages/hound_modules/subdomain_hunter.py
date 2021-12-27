@@ -29,7 +29,8 @@ def activate(targets, github_token, blacklist_targets):
     github_output = ''
     for target in targets:
         print("[+] Waiting for Amass...")
-        result = github_dorkers.subdomains(target, github_token) 
+        dorkers_proc = github_dorkers.enumerator_proc(target, github_token) 
+        result = dorkers_proc.communicate()[0].decode('utf-8')
         print("[+] Attempted to find subdomains on github for '" + target + "':")
         print(result)
         github_output += result
@@ -53,7 +54,7 @@ def activate(targets, github_token, blacklist_targets):
     
     massdns = packages.asset_loader.loaded_assets["massdns"]
     massdns_proc = massdns.subdom_resolver_proc(SUB_ALL_RAW_FILE)
-    massdns_output = massdns_proc.stdout.decode("utf-8")
+    massdns_output = massdns_proc.communicate()[0].decode('utf-8')
     print("[+] Resolved the following subdomains:\n")
     print(massdns_output)
     store_results(massdns_output, SUB_ALL_RSLVD_FILE)

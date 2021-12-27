@@ -4,7 +4,7 @@ from packages.static_paths import HM_WORDLISTS_DIR, RES_ROOT_DIR
 from packages.install_handler import update_install_path, asset_available
 from os import path
 from sys import executable
-from subprocess import run, STDOUT
+from subprocess import PIPE, Popen, run, STDOUT
 
 
 class Altdns:
@@ -20,7 +20,7 @@ class Altdns:
 
 
     def subdomains_perms(self, subdoms_file):
-        return run(f"{self.asset_path} -i {subdoms_file} -o {self.output_file_name} -w {self.permutations_list}", shell=True, capture_output=True).stdout.decode('utf-8')
+        return Popen(f"{self.asset_path} -i {subdoms_file} -o {self.output_file_name} -w {self.permutations_list}", shell=True, stdout=PIPE)
 
 
     def install(self):

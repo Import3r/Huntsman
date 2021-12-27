@@ -4,7 +4,7 @@ from packages.static_paths import INST_TOOLS_DIR
 from packages.install_handler import update_install_path
 import packages.asset_loader
 from os import path, makedirs
-from subprocess import run, PIPE, DEVNULL
+from subprocess import run, Popen, PIPE, DEVNULL
 import zipfile, wget
 
 
@@ -21,8 +21,8 @@ class MassDNS:
 
 
     def subdom_resolver_proc(self, domains_file):
-        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].asset_path
-        return run(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
+        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
+        return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
     def install(self):       
