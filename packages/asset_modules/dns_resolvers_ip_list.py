@@ -22,6 +22,10 @@ class DNSResolversList:
         self.install_path = HM_WORDLISTS_DIR
 
 
+    def location(self):
+        return self.asset_path
+
+
     def install(self):
         makedirs(self.install_path, exist_ok=True)
         wordlist_path = path.join(self.install_path, self.wordlist_file_name)
