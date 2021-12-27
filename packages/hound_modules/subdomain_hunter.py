@@ -1,5 +1,7 @@
 #! /usr/bin/python3
 
+from enum import unique
+from packages.asset_modules.massdns_tool import MassDNS
 from packages.static_paths import SUB_ALL_RAW_FILE, SUB_HOUND_RES_DIR, SUB_ALL_RSLVD_FILE
 from packages.common_utils import *
 import packages.asset_loader
@@ -47,12 +49,18 @@ def activate(targets, github_token, blacklist_targets):
     # clean-up non-valid domain formats from scan results
     valid_format_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
     
+    massdns = packages.asset_loader.loaded_assets["massdns"]
+
     targets.update(valid_format_subdoms)
     remove_blacklist(blacklist_targets, targets)
     store_results(lines_data_from_set(targets), SUB_ALL_RAW_FILE)
-    unique_targets = resolved_targets(targets)
-    store_results(lines_data_from_set(unique_targets), SUB_ALL_RSLVD_FILE)
-    
+    massdns_proc = massdns.subdom_resolver_proc(SUB_ALL_RAW_FILE)
+    unique_targets_data = massdns_proc.stdout
+    # unique_targets= resolved_targets(targets)
+    print("[+] Resolved the following subdomains:\n")
+    print(unique_targets_data.decode("utf-8"))
+    store_results(unique_targets_data.decode("utf-8"), SUB_ALL_RSLVD_FILE)
+    unique_targets = lines_set_from_bytes(unique_targets_data)
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
     
