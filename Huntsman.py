@@ -77,7 +77,7 @@ def main():
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
     aquatone = packages.asset_loader.loaded_assets["aquatone"]
-    aquatone_proc = aquatone.snapper_proc(SUB_ALL_RSLVD_FILE)
+    aquatone_proc = aquatone.screener_proc(SUB_ALL_RSLVD_FILE)
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)

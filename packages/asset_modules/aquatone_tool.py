@@ -22,7 +22,7 @@ class Aquatone:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
-    def snapper_proc(self, subdoms_file):
+    def screener_proc(self, subdoms_file):
         return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
 
 
