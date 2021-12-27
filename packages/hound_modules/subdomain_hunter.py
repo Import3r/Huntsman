@@ -35,33 +35,31 @@ def activate(targets, github_token, blacklist_targets):
         github_output += result
         time.sleep(1)
     
-    github_subdoms = lines_set_from_bytes(bytes(github_output, 'utf-8'))
-    store_results(lines_data_from_set(github_subdoms), github_dorkers.output_file)
+    store_results(github_output, github_dorkers.output_file)
+    github_subdoms = set_of_lines_from_text(github_output)
 
     print("[+] Finished enumerating github. Waiting for Amass to finish...")
     amass_output = amass_proc.communicate()[0].decode('utf-8')
-
     print("[+] Retrieved Amass subdomains:\n")
     print(amass_output)
-    amass_subdoms = lines_set_from_bytes(bytes(amass_output, 'utf-8'))
-    store_results(lines_data_from_set(amass_subdoms), amass.output_file)
+    store_results(amass_output, amass.output_file)
+    amass_subdoms = set_of_lines_from_text(amass_output)
 
     # clean-up non-valid domain formats from scan results
     valid_format_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
-    
-    massdns = packages.asset_loader.loaded_assets["massdns"]
-
     targets.update(valid_format_subdoms)
     remove_blacklist(blacklist_targets, targets)
-    store_results(lines_data_from_set(targets), SUB_ALL_RAW_FILE)
+    store_results(text_from_set_of_lines(targets), SUB_ALL_RAW_FILE)
+    
+    massdns = packages.asset_loader.loaded_assets["massdns"]
     massdns_proc = massdns.subdom_resolver_proc(SUB_ALL_RAW_FILE)
-    unique_targets_data = massdns_proc.stdout
-    # unique_targets= resolved_targets(targets)
+    massdns_output = massdns_proc.stdout.decode("utf-8")
     print("[+] Resolved the following subdomains:\n")
-    print(unique_targets_data.decode("utf-8"))
-    store_results(unique_targets_data.decode("utf-8"), SUB_ALL_RSLVD_FILE)
-    unique_targets = lines_set_from_bytes(unique_targets_data)
+    print(massdns_output)
+    store_results(massdns_output, SUB_ALL_RSLVD_FILE)
+    resolved_subdoms = set_of_lines_from_text(massdns_output)
+    
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)
     
-    return unique_targets
+    return resolved_subdoms

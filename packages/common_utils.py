@@ -3,11 +3,11 @@
 import re, requests
 
 
-def lines_set_from_bytes(data):
-    return set(data.decode('utf-8').strip().split('\n'))
+def set_of_lines_from_text(given_text):
+    return set(line for line in given_text.strip().split('\n') if line)
 
 
-def lines_data_from_set(given_set):
+def text_from_set_of_lines(given_set):
     return "\n".join(given_set)
 
 
