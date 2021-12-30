@@ -22,10 +22,6 @@ class Aquatone:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
-    def screener_proc(self, subdoms_file):
-        return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
-
-
     def install(self):
         if not asset_available("chromium-browser") and not asset_available("google-chrome"):
             browser = ChromiumBrowser()
@@ -45,3 +41,12 @@ class Aquatone:
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()
+
+
+    def screener_proc(self, subdoms_file):
+        return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
+
+
+    def thread_handler(self, subdoms_file):
+        aquatone_proc = self.screener_proc(subdoms_file)
+        aquatone_proc.wait()

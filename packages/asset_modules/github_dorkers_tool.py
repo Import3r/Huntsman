@@ -4,7 +4,7 @@ from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
 from os import path
 from sys import executable
-from subprocess import PIPE, Popen, run, STDOUT
+from subprocess import Popen, run, STDOUT, PIPE
 import git
 
 
@@ -23,10 +23,6 @@ class GithubDorkers:
         self.req_file = path.join(self.install_path, self.req_file_name)
 
 
-    def enumerator_proc(self, target, gh_token):
-        return Popen(f"{self.asset_path} -t {gh_token} -d {target}", shell=True, stdout=PIPE)
-
-
     def install(self):
         if not path.exists(self.install_path):
             git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
@@ -37,3 +33,18 @@ class GithubDorkers:
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()
+
+
+    def enumerator_proc(self, target, gh_token):
+        return Popen(f"{self.asset_path} -t {gh_token} -d {target}", shell=True, stdout=PIPE)
+
+
+    def thread_handler(self, targets, gh_token):
+        dorker_output = ''
+        for target in targets:
+            dorkers_proc = self.enumerator_proc(target, gh_token)
+            result = dorkers_proc.communicate()[0].decode('utf-8')
+            print("[+] Attempted to find subdomains on github for '" + target + "':\n")
+            print(result)
+            dorker_output += result
+        return dorker_output

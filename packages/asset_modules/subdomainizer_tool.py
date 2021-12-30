@@ -4,7 +4,7 @@ from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
 from os import path, makedirs
 from sys import executable
-from subprocess import Popen, run, STDOUT, PIPE
+from subprocess import Popen, run, STDOUT, DEVNULL
 import git
 
 
@@ -28,11 +28,6 @@ class Subdomainizer:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.req_file = path.join(self.install_path, self.req_file_name)
 
-
-    def scraper_proc(self, subdoms_file):
-        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
-        return Popen(f"{self.asset_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=PIPE)
-    
     
     def install(self):
         if not path.exists(self.install_path):
@@ -44,3 +39,14 @@ class Subdomainizer:
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()
+
+
+    def scraper_proc(self, subdoms_file):
+        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
+        return Popen(f"{self.asset_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=DEVNULL)
+    
+
+    def thread_handler(self, subdoms_file):
+        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
+        subdomainizer_proc = self.scraper_proc(subdoms_file)
+        subdomainizer_proc.wait()

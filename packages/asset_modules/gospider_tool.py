@@ -22,13 +22,6 @@ class GoSpider:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
-    def crawler_proc(self, subdomains):
-        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
-        base_endpoints = set("http://" + subdom for subdom in subdomains)
-        store_results(text_from_set_of_lines(base_endpoints), self.input_file)
-        return Popen(f"{self.asset_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
-
-
     def install(self):
         binary_path = path.join(path.expanduser("~"),"go","bin",self.asset_name)
         makedirs(self.install_path, exist_ok=True)
@@ -41,3 +34,19 @@ class GoSpider:
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()
+
+
+    def crawler_proc(self, subdomains):
+        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
+        base_endpoints = set("http://" + subdom for subdom in subdomains)
+        store_results(text_from_set_of_lines(base_endpoints), self.input_file)
+        return Popen(f"{self.asset_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
+
+
+    def thread_handler(self, subdomains):
+        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
+        base_endpoints = set("http://" + subdom for subdom in subdomains)
+        store_results(text_from_set_of_lines(base_endpoints), self.input_file)
+        gospider_proc = self.crawler_proc()
+        gospider_output = gospider_proc.communicate()[0].decode('utf-8')
+        return gospider_output

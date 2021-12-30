@@ -21,11 +21,6 @@ class Amass:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
 
-    def enumerator_proc(self, domains):
-        target_domains = ','.join(domains)
-        return Popen(f"{self.asset_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
-
-
     def install(self):
         makedirs(self.install_path, exist_ok=True)
         zip_path = path.join(self.install_path, self.zipfile_name)
@@ -41,3 +36,15 @@ class Amass:
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()
+
+
+    def enumerator_proc(self, domains):
+        target_domains = ','.join(domains)
+        return Popen(f"{self.asset_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
+
+
+    def thread_handler(self, domains):
+        target_domains = ','.join(domains)
+        amass_proc = self.enumerator_proc(target_domains)
+        amass_output = amass_proc.communicate()[0].decode("utf-8")
+        return amass_output

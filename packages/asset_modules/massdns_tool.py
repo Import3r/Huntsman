@@ -15,14 +15,10 @@ class MassDNS:
     compiled_zip_url = "https://github.com/blechschmidt/massdns/archive/refs/tags/v1.0.0.zip"
     dns_resolvers_list = ""
 
+
     def __init__(self, given_path) -> None:
         self.asset_path = given_path
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
-
-
-    def subdom_resolver_proc(self, domains_file):
-        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
-        return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
     def install(self):       
@@ -42,3 +38,15 @@ class MassDNS:
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()
+
+
+    def subdom_resolver_proc(self, domains_file):
+        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
+        return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
+
+
+    def thread_handler(self, domains_file):
+        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
+        massdns_proc = self.subdom_resolver_proc(domains_file)
+        massdns_output = massdns_proc.communicate()[0].decode("utf-8")
+        return massdns_output

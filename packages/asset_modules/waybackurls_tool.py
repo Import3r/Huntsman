@@ -18,10 +18,6 @@ class Waybackurls:
         self.output_file = path.join(ENDP_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
 
-
-    def enumerator_proc(self, subdoms_file):
-        return Popen(f"{self.asset_path} | tee {self.output_file}", shell=True, stdin=open(subdoms_file, 'r'), stdout=PIPE)
-    
     
     def install(self):
         binary_path = path.join(path.expanduser("~"),"go","bin",self.asset_name)
@@ -35,3 +31,13 @@ class Waybackurls:
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()
+
+
+    def enumerator_proc(self, subdoms_file):
+        return Popen(f"{self.asset_path} | tee {self.output_file}", shell=True, stdin=open(subdoms_file, 'r'), stdout=PIPE)
+
+
+    def thread_handler(self, subdoms_file):
+        wayback_proc = self.enumerator_proc(subdoms_file)
+        wayback_output = wayback_proc.communicate()[0].decode("utf-8")
+        return wayback_output
