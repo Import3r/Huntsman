@@ -2,6 +2,7 @@
 
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
+from packages.common_utils import store_results
 from os import path, makedirs, rename
 from subprocess import PIPE, Popen, run, STDOUT
 
@@ -39,9 +40,11 @@ class AssetFinder:
 
 
     def thread_handler(self, targets):
+        print("[+] Firing 'Assetfinder' to hunt subdomains...")
         for target in targets:
             assetf_proc = self.enumerator_proc(target)
             result = assetf_proc.communicate()[0].decode('utf-8')
-            print("[+] Assetfinder found the following subdomains for '" + target + "':\n")
-            print(result)
+            print("[+] Assetfinder found the following subdomains for '" + target + "':", result, sep='\n\n')
             self.output_buffer += result
+        store_results(self.output_buffer, self.output_file)
+        print("[+] Assetfinder hunt completed")

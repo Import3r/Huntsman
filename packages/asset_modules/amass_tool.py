@@ -3,6 +3,7 @@
 import subprocess
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
+from packages.common_utils import store_results
 from os import path, makedirs
 from subprocess import Popen, PIPE, DEVNULL
 import zipfile, wget
@@ -45,6 +46,10 @@ class Amass:
 
 
     def thread_handler(self, domains):
+        print("[+] Firing 'Amass' to hunt subdomains...")
         target_domains = ','.join(domains)
         amass_proc = self.enumerator_proc(target_domains)
         self.output_buffer = amass_proc.communicate()[0].decode("utf-8")
+        print("[+] Amass retrieved the following subdomains:", self.output_buffer, sep='\n\n')
+        store_results(self.output_buffer, self.output_file)
+        print("[+] Amass hunt completed")

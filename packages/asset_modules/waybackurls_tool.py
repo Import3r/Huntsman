@@ -2,6 +2,7 @@
 
 from packages.static_paths import ENDP_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
+from packages.common_utils import store_results
 from os import path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT
 
@@ -35,9 +36,13 @@ class Waybackurls:
 
 
     def enumerator_proc(self, subdoms_file):
-        return Popen(f"{self.asset_path} | tee {self.output_file}", shell=True, stdin=open(subdoms_file, 'r'), stdout=PIPE)
+        return Popen(f"{self.asset_path}", shell=True, stdin=open(subdoms_file, 'r'), stdout=PIPE)
 
 
     def thread_handler(self, subdoms_file):
+        print("[+] Firing 'WaybackURLs' to hunt endpoints...")
         wayback_proc = self.enumerator_proc(subdoms_file)
         self.output_buffer = wayback_proc.communicate()[0].decode("utf-8")
+        print("[+] WaybackURLs retrieved the following endpoints:", self.output_buffer, sep='\n\n')
+        store_results(self.output_buffer, self.output_file)
+        print("[+] WaybackURLs hunt completed")

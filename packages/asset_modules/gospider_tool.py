@@ -10,6 +10,7 @@ from subprocess import Popen, run, PIPE, STDOUT
 class GoSpider:
     asset_name = "gospider"
     results_dir_name = "gospider_results"
+    output_file_name = "endpoints.gospider"
     input_file_name = "subdom-urls.temp"
     remote_repo_name = "gospider"
     remote_repo_url = "github.com/jaeles-project/gospider"
@@ -18,6 +19,7 @@ class GoSpider:
     def __init__(self, given_path) -> None:
         self.asset_path = given_path
         self.output_dir = path.join(ENDP_HOUND_RES_DIR, self.results_dir_name)
+        self.output_file = path.join(ENDP_HOUND_RES_DIR, self.output_file_name)
         self.input_file = path.join(self.output_dir, self.input_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
@@ -42,8 +44,12 @@ class GoSpider:
 
 
     def thread_handler(self, subdomains):
+        print("[+] Firing 'GoSpider' to hunt endpoints...")
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
         base_endpoints = set("http://" + subdom for subdom in subdomains)
         store_results(text_from_set_of_lines(base_endpoints), self.input_file)
         gospider_proc = self.crawler_proc()
         self.output_buffer = gospider_proc.communicate()[0].decode("utf-8")
+        print("[+] GoSpider retrieved the following endpoints:", self.output_buffer, sep='\n\n')
+        store_results(self.output_buffer, self.output_file)
+        print("[+] GoSpider hunt completed")

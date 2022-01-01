@@ -1,7 +1,8 @@
 #! /usr/bin/python3
 
-from packages.static_paths import INST_TOOLS_DIR
+from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
 from packages.install_handler import update_install_path
+from packages.common_utils import store_results
 import packages.asset_loader
 from os import path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
@@ -46,6 +47,10 @@ class MassDNS:
 
 
     def thread_handler(self, domains_file):
+        print("[+] Firing 'MassDNS' to resolve collected subdomains...")
         self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
         massdns_proc = self.subdom_resolver_proc(domains_file)
         self.output_buffer = massdns_proc.communicate()[0].decode("utf-8")
+        print("[+] MassDNS resolved the following subdomains:", self.output_buffer, sep='\n\n')
+        store_results(self.output_buffer, SUB_ALL_RSLVD_FILE)
+        print("[+] Resolving subdomains completed")

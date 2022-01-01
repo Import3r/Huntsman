@@ -2,6 +2,7 @@
 
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
+from packages.common_utils import store_results
 from os import path
 from sys import executable
 from subprocess import Popen, run, STDOUT, PIPE
@@ -41,9 +42,11 @@ class GithubDorkers:
 
 
     def thread_handler(self, targets, gh_token):
+        print("[+] Dorking GitHub for subdomains...")
         for target in targets:
             dorkers_proc = self.enumerator_proc(target, gh_token)
             result = dorkers_proc.communicate()[0].decode('utf-8')
-            print("[+] Attempted to find subdomains on github for '" + target + "':\n")
-            print(result)
+            print("[+] Attempted to find subdomains on github for '" + target + "':", result, sep='\n\n')
             self.output_buffer += result
+        store_results(self.output_buffer, self.output_file)
+        print("[+] Dorking GitHub for subdomains completed")
