@@ -38,7 +38,7 @@ class GoSpider:
 
 
     def crawler_proc(self):
-        return Popen(f"{self.asset_path} -S {self.input_file} --other-source -t 20 -o {self.output_dir} -d 6 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
+        return Popen(f"{self.asset_path} -S {self.input_file} -o {self.output_dir} -m 4 -t 20 -c 20 -d 3 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
 
 
     def thread_handler(self, subdomains):
