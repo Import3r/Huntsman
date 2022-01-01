@@ -69,7 +69,7 @@ def main():
 
     targets, blacklist_targets, github_token = verify_ready()
 
-    print("\n\n[+] 'HUNTSMAN' sequence initiated")
+    print("[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
     all_subdomains = subdomain_hound.activate(targets, github_token, blacklist_targets)
@@ -77,22 +77,17 @@ def main():
     aquatone = packages.asset_loader.loaded_assets["aquatone"]
     subdomainizer = packages.asset_loader.loaded_assets["subdomainizer"]
 
-    print("[+] Firing 'Aquatone' to screen web apps...")
-    time.sleep(1)
     aquatone_thread = threading.Thread(target=aquatone.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
-    aquatone_thread.start()
-
-    print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
-    time.sleep(1)
     subdomainizer_thread = threading.Thread(target=subdomainizer.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
-    subdomainizer_thread.start()
+    subdom_ops_threads = (aquatone_thread, subdomainizer_thread)
+
+    for t in subdom_ops_threads: t.start()
 
     all_endpoints = endpoint_hound.activate(all_subdomains, SUB_ALL_RSLVD_FILE)
 
-    aquatone_thread.join()
-    subdomainizer_thread.join()
+    for t in subdom_ops_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
 
-    print("\n\n[+] 'HUNTSMAN' sequence completed")
+    print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 
     print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")

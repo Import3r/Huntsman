@@ -46,6 +46,8 @@ class Subdomainizer:
     
 
     def thread_handler(self, subdoms_file):
+        print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
         subdomainizer_proc = self.scraper_proc(subdoms_file)
         subdomainizer_proc.wait()
+        print("[+] Subdomainizer hunt completed")

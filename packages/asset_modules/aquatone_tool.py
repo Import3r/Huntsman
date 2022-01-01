@@ -48,5 +48,7 @@ class Aquatone:
 
 
     def thread_handler(self, subdoms_file):
+        print("[+] Firing 'Aquatone' to screen web apps...")
         aquatone_proc = self.screener_proc(subdoms_file)
         aquatone_proc.wait()
+        print("[+] Aquatone screening completed...")
