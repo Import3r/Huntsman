@@ -4,8 +4,8 @@ from packages.static_paths import RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
 from packages.common_utils import valid_github_token, is_valid_domain_format
 from packages.install_handler import check_for_assets
 import packages.asset_loader
-import packages.hound_modules.subdomain_hunter as subdomain_hound
-import packages.hound_modules.endpoint_hunter as endpoint_hound
+import packages.hound_modules.subdomain_hounds as subdomain_hound
+import packages.hound_modules.endpoint_hounds as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
 from sys import argv
 import time, signal, threading
