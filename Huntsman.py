@@ -8,7 +8,7 @@ import packages.hound_modules.subdomain_hunter as subdomain_hound
 import packages.hound_modules.endpoint_hunter as endpoint_hound
 from os import path, mkdir, setpgrp, killpg 
 from sys import argv
-import time, signal
+import time, signal, threading
 
 banner = """
 
@@ -74,20 +74,23 @@ def main():
 
     all_subdomains = subdomain_hound.activate(targets, github_token, blacklist_targets)
 
+    aquatone = packages.asset_loader.loaded_assets["aquatone"]
+    subdomainizer = packages.asset_loader.loaded_assets["subdomainizer"]
+
     print("[+] Firing 'Aquatone' to screen web apps...")
     time.sleep(1)
-    aquatone = packages.asset_loader.loaded_assets["aquatone"]
-    aquatone_proc = aquatone.screener_proc(SUB_ALL_RSLVD_FILE)
+    aquatone_thread = threading.Thread(target=aquatone.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
+    aquatone_thread.start()
 
     print("[+] Firing 'Subdomainizer' to hunt stored secrets...")
     time.sleep(1)
-    subdomainizer = packages.asset_loader.loaded_assets["subdomainizer"]
-    subdomainizer_proc = subdomainizer.scraper_proc(SUB_ALL_RSLVD_FILE)
+    subdomainizer_thread = threading.Thread(target=subdomainizer.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
+    subdomainizer_thread.start()
 
     all_endpoints = endpoint_hound.activate(all_subdomains, SUB_ALL_RSLVD_FILE)
 
-    aquatone_proc.wait()
-    subdomainizer_proc.wait()
+    aquatone_thread.join()
+    subdomainizer_thread.join()
 
     print("\n\n[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)

@@ -21,6 +21,7 @@ class GithubDorkers:
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.req_file = path.join(self.install_path, self.req_file_name)
+        self.output_buffer = ""
 
 
     def install(self):
@@ -40,11 +41,9 @@ class GithubDorkers:
 
 
     def thread_handler(self, targets, gh_token):
-        dorker_output = ''
         for target in targets:
             dorkers_proc = self.enumerator_proc(target, gh_token)
             result = dorkers_proc.communicate()[0].decode('utf-8')
             print("[+] Attempted to find subdomains on github for '" + target + "':\n")
             print(result)
-            dorker_output += result
-        return dorker_output
+            self.output_buffer += result

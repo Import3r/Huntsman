@@ -6,7 +6,7 @@ from packages.static_paths import SUB_ALL_RAW_FILE, SUB_HOUND_RES_DIR, SUB_ALL_R
 from packages.common_utils import *
 import packages.asset_loader
 from os import makedirs
-import time
+import time, threading
 
 
 def activate(targets, github_token, blacklist_targets):
@@ -17,34 +17,28 @@ def activate(targets, github_token, blacklist_targets):
 
     amass = packages.asset_loader.loaded_assets["amass"]
     github_dorkers = packages.asset_loader.loaded_assets["github_dorkers"]
+    massdns = packages.asset_loader.loaded_assets["massdns"]
 
     print("[+] Firing 'Amass' to hunt subdomains...")
     time.sleep(1)
-    amass_proc = amass.enumerator_proc(targets)
+    amass_thread = threading.Thread(target=amass.thread_handler, args=(targets,))
+    amass_thread.start()
 
     print("[+] Hunting subdomains on GitHub...")
     time.sleep(1)
-
-    # Dork github for every given target to look for subdomains
-    github_output = ''
-    for target in targets:
-        print("[+] Waiting for Amass...")
-        dorkers_proc = github_dorkers.enumerator_proc(target, github_token) 
-        result = dorkers_proc.communicate()[0].decode('utf-8')
-        print("[+] Attempted to find subdomains on github for '" + target + "':")
-        print(result)
-        github_output += result
-        time.sleep(1)
+    dorkers_thread = threading.Thread(target=github_dorkers.thread_handler, args=(targets, github_token,)) 
+    dorkers_thread.start()
     
-    store_results(github_output, github_dorkers.output_file)
-    github_subdoms = set_of_lines_from_text(github_output)
+    amass_thread.join()
+    dorkers_thread.join()
 
-    print("[+] Finished enumerating github. Waiting for Amass to finish...")
-    amass_output = amass_proc.communicate()[0].decode('utf-8')
     print("[+] Retrieved Amass subdomains:\n")
-    print(amass_output)
-    store_results(amass_output, amass.output_file)
-    amass_subdoms = set_of_lines_from_text(amass_output)
+    print(amass.output_buffer)
+
+    store_results(github_dorkers.output_buffer, github_dorkers.output_file)
+    github_subdoms = set_of_lines_from_text(github_dorkers.output_buffer)
+    store_results(amass.output_buffer, amass.output_file)
+    amass_subdoms = set_of_lines_from_text(amass.output_buffer)
 
     # clean-up non-valid domain formats from scan results
     valid_format_subdoms = set(subdom for subdom in github_subdoms.union(amass_subdoms) if is_valid_domain_format(subdom))
@@ -52,13 +46,14 @@ def activate(targets, github_token, blacklist_targets):
     remove_blacklist(blacklist_targets, targets)
     store_results(text_from_set_of_lines(targets), SUB_ALL_RAW_FILE)
     
-    massdns = packages.asset_loader.loaded_assets["massdns"]
-    massdns_proc = massdns.subdom_resolver_proc(SUB_ALL_RAW_FILE)
-    massdns_output = massdns_proc.communicate()[0].decode('utf-8')
+    massdns_thread = threading.Thread(target=massdns.thread_handler, args=(SUB_ALL_RAW_FILE,)) 
+    massdns_thread.start()
+    massdns_thread.join()
+
     print("[+] Resolved the following subdomains:\n")
-    print(massdns_output)
-    store_results(massdns_output, SUB_ALL_RSLVD_FILE)
-    resolved_subdoms = set_of_lines_from_text(massdns_output)
+    print(massdns.output_buffer)
+    store_results(massdns.output_buffer, SUB_ALL_RSLVD_FILE)
+    resolved_subdoms = set_of_lines_from_text(massdns.output_buffer)
     
     print("\n\n[+] Hunting live subdomains completed")
     time.sleep(2)

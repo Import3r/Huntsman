@@ -42,7 +42,6 @@ class Subdomainizer:
 
 
     def scraper_proc(self, subdoms_file):
-        makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess 
         return Popen(f"{self.asset_path} -k -l {subdoms_file} -o {self.subs_loot_file} -sop {self.secret_loot_file} -cop {self.cloud_loot_file}", shell=True, stdout=DEVNULL)
     
 

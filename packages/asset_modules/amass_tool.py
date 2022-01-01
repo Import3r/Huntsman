@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+import subprocess
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
 from os import path, makedirs
@@ -19,6 +20,7 @@ class Amass:
         self.asset_path = given_path
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_buffer = ""
 
 
     def install(self):
@@ -39,12 +41,10 @@ class Amass:
 
 
     def enumerator_proc(self, domains):
-        target_domains = ','.join(domains)
-        return Popen(f"{self.asset_path} enum --passive -d {target_domains} -nolocaldb", shell=True, stdout=PIPE, stderr=DEVNULL)
+        return Popen(f"{self.asset_path} enum --passive -d {domains} -nolocaldb", shell=True, stdout=PIPE)
 
 
     def thread_handler(self, domains):
         target_domains = ','.join(domains)
         amass_proc = self.enumerator_proc(target_domains)
-        amass_output = amass_proc.communicate()[0].decode("utf-8")
-        return amass_output
+        self.output_buffer = amass_proc.communicate()[0].decode("utf-8")

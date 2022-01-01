@@ -17,8 +17,9 @@ class Waybackurls:
         self.asset_path = given_path
         self.output_file = path.join(ENDP_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_buffer = ""
 
-    
+
     def install(self):
         binary_path = path.join(path.expanduser("~"),"go","bin",self.asset_name)
         makedirs(self.install_path, exist_ok=True)
@@ -39,5 +40,4 @@ class Waybackurls:
 
     def thread_handler(self, subdoms_file):
         wayback_proc = self.enumerator_proc(subdoms_file)
-        wayback_output = wayback_proc.communicate()[0].decode("utf-8")
-        return wayback_output
+        self.output_buffer = wayback_proc.communicate()[0].decode("utf-8")
