@@ -18,26 +18,18 @@ def activate(targets, github_token, blacklist_targets):
     amass = packages.asset_loader.loaded_assets["amass"]
     github_dorkers = packages.asset_loader.loaded_assets["github_dorkers"]
     assetfinder = packages.asset_loader.loaded_assets["assetfinder"]
-    massdns = packages.asset_loader.loaded_assets["massdns"]
+    hunting_hounds = (amass, github_dorkers, assetfinder)
 
     amass_thread = threading.Thread(target=amass.thread_handler, args=(targets,))
     af_thread = threading.Thread(target=assetfinder.thread_handler, args=(targets,)) 
-    dorkers_thread = threading.Thread(target=github_dorkers.thread_handler, args=(targets, github_token,)) 
-    massdns_thread = threading.Thread(target=massdns.thread_handler, args=(SUB_ALL_RAW_FILE,)) 
+    dorkers_thread = threading.Thread(target=github_dorkers.thread_handler, args=(targets, github_token,))
+    hunting_threads = (amass_thread, af_thread, dorkers_thread)
 
-    amass_thread.start()
-    af_thread.start()
-    dorkers_thread.start()
+    for t in hunting_threads: t.start()
+    for t in hunting_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
 
-    amass_thread.join()
-    af_thread.join()
-    dorkers_thread.join()
-
-    amass_subdoms = set_of_lines_from_text(amass.output_buffer)
-    af_subdoms = set_of_lines_from_text(assetfinder.output_buffer)
-    github_subdoms = set_of_lines_from_text(github_dorkers.output_buffer)
-
-    all_subdoms = amass_subdoms.union(github_subdoms, af_subdoms)
+    # returns set of lines for each hound's results and joins them
+    all_subdoms = set().union(*[set_of_lines_from_text(hound.output_buffer) for hound in hunting_hounds])
 
     # clean-up non-valid domain formats from scan results
     valid_format_subdoms = set(subdom for subdom in all_subdoms if is_valid_domain_format(subdom))
@@ -45,6 +37,9 @@ def activate(targets, github_token, blacklist_targets):
     remove_blacklist(blacklist_targets, targets)
     store_results(text_from_set_of_lines(targets), SUB_ALL_RAW_FILE)
     
+    massdns = packages.asset_loader.loaded_assets["massdns"]
+    massdns_thread = threading.Thread(target=massdns.thread_handler, args=(SUB_ALL_RAW_FILE,)) 
+
     massdns_thread.start()
     massdns_thread.join()
 
