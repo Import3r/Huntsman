@@ -24,8 +24,7 @@ def activate(subdomains, subdoms_file):
     for t in hunting_threads: t.start()
     for t in hunting_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
 
-    # returns set of lines for each hound's results and joins them
-    all_endpoints = set().union(*[set_of_lines_from_text(hound.output_buffer) for hound in hunting_hounds])
+    all_endpoints = set().union(*[hound.results_set for hound in hunting_hounds])
 
     store_results(text_from_set_of_lines(all_endpoints), ENDP_ALL_RAW_FILE)
 

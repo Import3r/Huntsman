@@ -2,7 +2,7 @@
 
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
-from packages.common_utils import store_results
+from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 from os import path
 from sys import executable
 from subprocess import Popen, run, STDOUT, PIPE
@@ -23,6 +23,7 @@ class GithubDorkers:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.req_file = path.join(self.install_path, self.req_file_name)
         self.output_buffer = ""
+        self.results_set = set()
 
 
     def install(self):
@@ -48,5 +49,7 @@ class GithubDorkers:
             result = dorkers_proc.communicate()[0].decode('utf-8')
             print("[+] Attempted to find subdomains on github for '" + target + "':", result, sep='\n\n')
             self.output_buffer += result
-        store_results(self.output_buffer, self.output_file)
+        # clean up duplicates and non-valid domain formats from output before storing results
+        self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
+        store_results(text_from_set_of_lines(self.results_set), self.output_file)
         print("[+] Dorking GitHub for subdomains completed")

@@ -29,11 +29,9 @@ def activate(targets, github_token, blacklist_targets):
     for t in hunting_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
 
     # returns set of lines for each hound's results and joins them
-    all_subdoms = set().union(*[set_of_lines_from_text(hound.output_buffer) for hound in hunting_hounds])
+    all_subdoms = set().union(*[hound.results_set for hound in hunting_hounds])
 
-    # clean-up non-valid domain formats from scan results
-    valid_format_subdoms = set(subdom for subdom in all_subdoms if is_valid_domain_format(subdom))
-    targets.update(valid_format_subdoms)
+    targets.update(all_subdoms)
     remove_blacklist(blacklist_targets, targets)
     store_results(text_from_set_of_lines(targets), SUB_ALL_RAW_FILE)
     
@@ -43,7 +41,7 @@ def activate(targets, github_token, blacklist_targets):
     massdns_thread.start()
     massdns_thread.join()
 
-    resolved_subdoms = set_of_lines_from_text(massdns.output_buffer)
+    resolved_subdoms = massdns.results_set
     
     print("\n\n[+] Hunting subdomains completed\n\n")
     time.sleep(2)

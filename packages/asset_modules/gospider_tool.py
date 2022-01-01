@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import ENDP_HOUND_RES_DIR, INST_TOOLS_DIR
-from packages.common_utils import store_results, text_from_set_of_lines
+from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text
 from packages.install_handler import update_install_path
 from os import path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT
@@ -23,6 +23,7 @@ class GoSpider:
         self.input_file = path.join(self.output_dir, self.input_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
+        self.results_set = set()
 
 
     def install(self):
@@ -51,5 +52,7 @@ class GoSpider:
         gospider_proc = self.crawler_proc()
         self.output_buffer = gospider_proc.communicate()[0].decode("utf-8")
         print("[+] GoSpider retrieved the following endpoints:", self.output_buffer, sep='\n\n')
-        store_results(self.output_buffer, self.output_file)
+        # clean up duplicates from output before storing results
+        self.results_set = set(url.rstrip('/') for url in set_of_lines_from_text(self.output_buffer))
+        store_results(text_from_set_of_lines(self.results_set), self.output_file)
         print("[+] GoSpider hunt completed")

@@ -2,7 +2,7 @@
 
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
-from packages.common_utils import store_results
+from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 from os import path, makedirs, rename
 from subprocess import PIPE, Popen, run, STDOUT
 
@@ -19,6 +19,7 @@ class AssetFinder:
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
+        self.results_set = set()
 
 
     def install(self):
@@ -46,5 +47,7 @@ class AssetFinder:
             result = assetf_proc.communicate()[0].decode('utf-8')
             print("[+] Assetfinder found the following subdomains for '" + target + "':", result, sep='\n\n')
             self.output_buffer += result
-        store_results(self.output_buffer, self.output_file)
+        # clean up duplicates and non-valid domain formats from output before storing results
+        self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
+        store_results(text_from_set_of_lines(self.results_set), self.output_file)
         print("[+] Assetfinder hunt completed")

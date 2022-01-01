@@ -2,7 +2,7 @@
 
 from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
 from packages.install_handler import update_install_path
-from packages.common_utils import store_results
+from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 import packages.asset_loader
 from os import path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
@@ -21,6 +21,7 @@ class MassDNS:
         self.asset_path = given_path
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
+        self.results_set = set()
 
 
     def install(self):       
@@ -52,5 +53,7 @@ class MassDNS:
         massdns_proc = self.subdom_resolver_proc(domains_file)
         self.output_buffer = massdns_proc.communicate()[0].decode("utf-8")
         print("[+] MassDNS resolved the following subdomains:", self.output_buffer, sep='\n\n')
-        store_results(self.output_buffer, SUB_ALL_RSLVD_FILE)
+        # clean up duplicates and non-valid domain formats from output before storing results
+        self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
+        store_results(text_from_set_of_lines(self.results_set), SUB_ALL_RSLVD_FILE)
         print("[+] Resolving subdomains completed")
