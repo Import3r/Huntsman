@@ -23,12 +23,18 @@ def activate(subdomains, subdoms_file):
 
     for t in hunting_threads: t.start()
     for t in hunting_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
-
+    
     all_endpoints = set().union(*[hound.results_set for hound in hunting_hounds])
 
-    store_results(text_from_set_of_lines(all_endpoints), ENDP_ALL_RAW_FILE)
-
+    qsreplace = packages.asset_loader.loaded_assets["qsreplace"]
+    qsreplace_thread = threading.Thread(target=qsreplace.thread_handler, args=(all_endpoints,))
+    
+    qsreplace_thread.start()
+    qsreplace_thread.join()
+    
+    unique_endpoints = qsreplace.results_set
+    
     print("\n\n[+] Hunting endpoints for targets completed\n\n")
     time.sleep(2)
 
-    return all_endpoints
+    return unique_endpoints
