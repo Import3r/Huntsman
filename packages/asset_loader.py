@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.json_handler import read_from
+from packages.json_utils import read_from
 from packages.static_paths import PATHS_JSON_FILE
 from packages.asset_modules.amass_tool import Amass
 from packages.asset_modules.gospider_tool import GoSpider

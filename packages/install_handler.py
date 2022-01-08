@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from packages.static_paths import INST_TOOLS_DIR, PATHS_JSON_FILE
-import packages.json_handler
+import packages.json_utils
 from os import path, chmod, makedirs, geteuid
 from subprocess import run, STDOUT
 from shutil import which
@@ -39,9 +39,9 @@ def update_install_path(asset, new_path):
     asset.asset_path = full_path
     chmod(full_path, 0o744)
     
-    paths = packages.json_handler.read_from(PATHS_JSON_FILE)
+    paths = packages.json_utils.read_from(PATHS_JSON_FILE)
     paths[asset.asset_name] = full_path
-    packages.json_handler.write_data_to(PATHS_JSON_FILE, paths)
+    packages.json_utils.write_data_to(PATHS_JSON_FILE, paths)
 
 
 def ask_for_path(asset):
@@ -52,6 +52,15 @@ def ask_for_path(asset):
             return
         else:
             print("[!] Invalid path.")
+
+
+def get_valid_path(asset):
+    while True:
+        path = input("[?] Please enter the full path for '" + asset.asset_name + "': ")
+        if not asset_available(path):
+            print("[!] Invalid path.")
+        else:
+            return path
 
 
 def offer_to_store_paths(required_assets):
