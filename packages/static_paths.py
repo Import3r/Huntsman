@@ -25,6 +25,8 @@ ENDP_HOUND_RES_DIR_NAME = 'collected_endpoints'
 ENDP_HOUND_RES_DIR = path.join(RES_ROOT_DIR, ENDP_HOUND_RES_DIR_NAME)
 ENDP_ALL_RAW_FILE_NAME = 'raw-endpoints.all'
 ENDP_ALL_RAW_FILE = path.join(ENDP_HOUND_RES_DIR, ENDP_ALL_RAW_FILE_NAME)
+ENDP_BASE_LIVE_FILE_NAME = 'base-live-endpoints.all'
+ENDP_BASE_LIVE_FILE = path.join(ENDP_HOUND_RES_DIR, ENDP_BASE_LIVE_FILE_NAME)
 
 PATHS_JSON_FILE_NAME = '.inst_tools_paths.json'
 PATHS_JSON_FILE = path.join(path.dirname(argv[0]), PATHS_JSON_FILE_NAME)

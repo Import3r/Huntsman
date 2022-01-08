@@ -12,6 +12,7 @@ from packages.asset_modules.massdns_tool import MassDNS
 from packages.asset_modules.dns_resolvers_ip_list import DNSResolversList
 from packages.asset_modules.assetfinder_tool import AssetFinder
 from packages.asset_modules.qsreplace_tool import QSReplace
+from packages.asset_modules.httprobe_tool import HttProbe
 
 paths = read_from(PATHS_JSON_FILE)
 
@@ -25,5 +26,6 @@ loaded_assets = {
     "massdns" : MassDNS( paths["massdns"] if "massdns" in paths.keys() else "" ),
     "dns_resolvers_ip_list" : DNSResolversList( paths["dns_resolvers_ip_list"] if "dns_resolvers_ip_list" in paths.keys() else "" ),
     "assetfinder" : AssetFinder( paths["assetfinder"] if "assetfinder" in paths.keys() else "" ),
-    "qsreplace" : QSReplace( paths["qsreplace"] if "qsreplace" in paths.keys() else "" )
+    "qsreplace" : QSReplace( paths["qsreplace"] if "qsreplace" in paths.keys() else "" ),
+    "httprobe" : HttProbe( paths["httprobe"] if "httprobe" in paths.keys() else "" )
 }

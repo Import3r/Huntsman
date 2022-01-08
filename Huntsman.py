@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from packages.static_paths import RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
+from packages.static_paths import ENDP_BASE_LIVE_FILE, RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
 from packages.common_utils import valid_github_token, is_valid_domain_format
 from packages.install_handler import check_for_assets
 import packages.asset_loader
@@ -75,17 +75,13 @@ def main():
     all_subdomains = subdomain_hound.activate(targets, github_token, blacklist_targets)
 
     aquatone = packages.asset_loader.loaded_assets["aquatone"]
-    subdomainizer = packages.asset_loader.loaded_assets["subdomainizer"]
 
     aquatone_thread = threading.Thread(target=aquatone.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
-    subdomainizer_thread = threading.Thread(target=subdomainizer.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
-    subdom_ops_threads = (aquatone_thread, subdomainizer_thread)
-
-    for t in subdom_ops_threads: t.start()
+    aquatone_thread.start()
 
     all_endpoints = endpoint_hound.activate(all_subdomains, SUB_ALL_RSLVD_FILE)
 
-    for t in subdom_ops_threads: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
+    aquatone_thread.join()
 
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)

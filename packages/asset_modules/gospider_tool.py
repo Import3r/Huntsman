@@ -11,7 +11,6 @@ class GoSpider:
     asset_name = "gospider"
     results_dir_name = "gospider_results"
     output_file_name = "endpoints.gospider"
-    input_file_name = "subdom-urls.temp"
     remote_repo_name = "gospider"
     remote_repo_url = "github.com/jaeles-project/gospider"
 
@@ -20,7 +19,6 @@ class GoSpider:
         self.asset_path = given_path
         self.output_dir = path.join(ENDP_HOUND_RES_DIR, self.results_dir_name)
         self.output_file = path.join(ENDP_HOUND_RES_DIR, self.output_file_name)
-        self.input_file = path.join(self.output_dir, self.input_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
@@ -40,16 +38,14 @@ class GoSpider:
             exit()
 
 
-    def crawler_proc(self):
-        return Popen(f"{self.asset_path} -S {self.input_file} -o {self.output_dir} -m 4 -t 20 -c 20 -d 3 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
+    def crawler_proc(self, endpoints_file):
+        return Popen(f"{self.asset_path} -S {endpoints_file} -o {self.output_dir} -m 4 -t 20 -c 20 -d 3 -q | grep -E -o '[a-zA-Z]+://[^\ ]+'", shell=True, stdout=PIPE)
 
 
-    def thread_handler(self, subdomains):
+    def thread_handler(self, endpoints_file):
         print("[+] Firing 'GoSpider' to hunt endpoints...")
         makedirs(self.output_dir, exist_ok = True)  # ensure output dir exist to avoid failure of the subprocess
-        base_endpoints = set("http://" + subdom for subdom in subdomains)
-        store_results(text_from_set_of_lines(base_endpoints), self.input_file)
-        gospider_proc = self.crawler_proc()
+        gospider_proc = self.crawler_proc(endpoints_file)
         self.output_buffer = gospider_proc.communicate()[0].decode("utf-8")
         print("[+] GoSpider retrieved the following endpoints:", self.output_buffer, sep='\n\n')
         # clean up duplicates from output before storing results
