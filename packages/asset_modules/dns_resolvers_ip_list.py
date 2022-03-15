@@ -1,8 +1,9 @@
 #! /usr/bin/python3
 
+from shutil import which
 from packages.static_paths import HM_WORDLISTS_DIR
 from packages.install_handler import update_install_path
-from os import path, makedirs
+from os import chmod, path, makedirs
 import wget
 
 
@@ -24,6 +25,16 @@ class DNSResolversList:
 
     def location(self):
         return self.asset_path
+
+
+    def update_install_path(self, new_path):
+        self.asset_path = path.abspath(new_path)
+        chmod(self.asset_path, 0o744)
+        self.paths_file.update_value(self.asset_name, self.asset_path)
+
+
+    def is_installed(self):
+        return which(self.asset_path) is not None or path.exists(self.asset_path)
 
 
     def install(self):

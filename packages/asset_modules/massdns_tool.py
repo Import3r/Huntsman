@@ -1,10 +1,11 @@
 #! /usr/bin/python3
 
+from shutil import which
 from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
 from packages.install_handler import update_install_path
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 import packages.asset_loader
-from os import path, makedirs
+from os import chmod, path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
 import zipfile, wget
 
@@ -22,6 +23,16 @@ class MassDNS:
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
+
+
+    def update_install_path(self, new_path):
+        self.asset_path = path.abspath(new_path)
+        chmod(self.asset_path, 0o744)
+        self.paths_file.update_value(self.asset_name, self.asset_path)
+
+
+    def is_installed(self):
+        return which(self.asset_path) is not None or path.exists(self.asset_path)
 
 
     def install(self):       

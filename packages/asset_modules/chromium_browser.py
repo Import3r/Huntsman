@@ -1,8 +1,9 @@
 #! /usr/bin/python3
 
+from shutil import which
 from packages.static_paths import INST_TOOLS_DIR
 from packages.install_handler import asset_available, available_in_apt, install_apt_package
-from os import path, makedirs
+from os import chmod, path, makedirs
 import wget
 
 
@@ -13,6 +14,16 @@ class ChromiumBrowser:
 
     def __init__(self) -> None:
         self.install_path = INST_TOOLS_DIR
+
+
+    def update_install_path(self, new_path):
+        self.asset_path = path.abspath(new_path)
+        chmod(self.asset_path, 0o744)
+        self.paths_file.update_value(self.asset_name, self.asset_path)
+
+
+    def is_installed(self):
+        return which(self.asset_path) is not None or path.exists(self.asset_path)
 
 
     def install(self):

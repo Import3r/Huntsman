@@ -1,9 +1,10 @@
 #! /usr/bin/python3
 
+from shutil import which
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.install_handler import asset_available, update_install_path
 from packages.asset_modules.chromium_browser import ChromiumBrowser
-from os import path, makedirs
+from os import chmod, path, makedirs
 from subprocess import Popen, DEVNULL
 import zipfile, wget
 
@@ -20,6 +21,16 @@ class Aquatone:
         self.asset_path = given_path
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+
+
+    def update_install_path(self, new_path):
+        self.asset_path = path.abspath(new_path)
+        chmod(self.asset_path, 0o744)
+        self.paths_file.update_value(self.asset_name, self.asset_path)
+
+
+    def is_installed(self):
+        return which(self.asset_path) is not None or path.exists(self.asset_path)
 
 
     def install(self):
