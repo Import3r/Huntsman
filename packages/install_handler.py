@@ -89,6 +89,14 @@ def auto_install(required_assets):
             exit()
 
 
+def prompt_decision(prompt_message, choices):
+    while True:
+        choice = input(prompt_message).upper()
+        if choice not in choices:
+            print("[!] Please choose an option from [ " + " / ".join(choices) +" ] only.")
+        else: return choice
+
+
 def offer_install(required_assets):
     while True:
         choice = input("[?] Would you like me to pull the remaining assets for you? (Y)es, (N)o, (Q)uit: ")
