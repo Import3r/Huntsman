@@ -2,7 +2,7 @@
 
 from shutil import which
 from packages.static_paths import HM_WORDLISTS_DIR, RES_ROOT_DIR
-from packages.install_handler import update_install_path, asset_available
+from packages.install_handler import asset_available
 from os import chmod, path
 from sys import executable
 from subprocess import PIPE, Popen, run, STDOUT
@@ -39,7 +39,7 @@ class Altdns:
         run([executable, "-m", "pip", "install", "py-altdns==1.0.2"], stderr=STDOUT)
                 
         if asset_available(self.asset_name):
-            update_install_path(self, self.asset_name)
+            self.update_install_path(self.asset_name)
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()

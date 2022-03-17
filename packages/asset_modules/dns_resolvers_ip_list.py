@@ -2,7 +2,6 @@
 
 from shutil import which
 from packages.static_paths import HM_WORDLISTS_DIR
-from packages.install_handler import update_install_path
 from os import chmod, path, makedirs
 import wget
 
@@ -42,11 +41,11 @@ class DNSResolversList:
         makedirs(self.install_path, exist_ok=True)
         wordlist_path = path.join(self.install_path, self.wordlist_file_name)
         if path.exists(wordlist_path):
-                update_install_path(self, wordlist_path)
+                self.update_install_path(wordlist_path)
         else:
             wget.download(self.wordlist_url, wordlist_path)
             if path.exists(wordlist_path):
-                update_install_path(self, wordlist_path)            
+                self.update_install_path(wordlist_path)            
             else:
                 print("[X] Failed to download '" + self.asset_name + "' from'" + self.wordlist_url + "'\nexiting...")
                 exit()

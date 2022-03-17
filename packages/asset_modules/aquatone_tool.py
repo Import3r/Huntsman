@@ -2,7 +2,7 @@
 
 from shutil import which
 from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
-from packages.install_handler import asset_available, update_install_path
+from packages.install_handler import asset_available
 from packages.asset_modules.chromium_browser import ChromiumBrowser
 from os import chmod, path, makedirs
 from subprocess import Popen, DEVNULL
@@ -50,7 +50,7 @@ class Aquatone:
             zip_file.extractall(self.install_path)
         
         if path.exists(self.install_path):
-            update_install_path(self, path.join(self.install_path, relative_path))
+            self.update_install_path(path.join(self.install_path, relative_path))
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()

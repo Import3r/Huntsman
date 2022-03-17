@@ -2,7 +2,6 @@
 
 from shutil import which
 from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
-from packages.install_handler import update_install_path
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 from os import chmod, path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
@@ -48,7 +47,7 @@ class MassDNS:
         
         if path.exists(unzipped_dir):
             run(f"make -C {unzipped_dir}", shell=True)
-            update_install_path(self, path.join(unzipped_dir, 'bin', self.asset_name))
+            self.update_install_path(path.join(unzipped_dir, 'bin', self.asset_name))
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()

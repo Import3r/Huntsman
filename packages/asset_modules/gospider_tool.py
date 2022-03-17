@@ -3,7 +3,6 @@
 from shutil import which
 from packages.static_paths import ENDP_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text
-from packages.install_handler import update_install_path
 from os import chmod, path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT
 
@@ -44,7 +43,7 @@ class GoSpider:
         if path.exists(binary_path):
             final_path = path.join(self.install_path, self.asset_name)
             rename(binary_path, final_path)
-            update_install_path(self, final_path)
+            self.update_install_path(final_path)
         else:
             print("[X] Failed to install '" + self.asset_name + "'\nexiting...")
             exit()

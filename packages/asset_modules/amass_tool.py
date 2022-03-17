@@ -3,7 +3,6 @@
 from shutil import which
 import subprocess
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
-from packages.install_handler import update_install_path
 from packages.common_utils import store_results
 from os import chmod, path, makedirs
 from subprocess import Popen, PIPE
@@ -46,7 +45,7 @@ class Amass:
             zip_file.extractall(self.install_path)
         
         if path.exists(self.install_path):
-            update_install_path(self, path.join(self.install_path, relative_path))
+            self.update_install_path(path.join(self.install_path, relative_path))
         else:
             print("[X] Failed to properly decompress '" + self.zipfile_name + "'\nexiting...")
             exit()
