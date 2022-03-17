@@ -2,7 +2,6 @@
 
 from packages.Hunt import Hunt
 from packages.Huntsman import Huntsman
-from packages.static_paths import RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
 from os import setpgrp, killpg 
 import time, signal
 

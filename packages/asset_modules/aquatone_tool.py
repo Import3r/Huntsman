@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 from shutil import which
-from packages.static_paths import RES_ROOT_DIR, INST_TOOLS_DIR
 from packages.install_handler import asset_available
 from packages.asset_modules.chromium_browser import ChromiumBrowser
 from os import chmod, path, makedirs

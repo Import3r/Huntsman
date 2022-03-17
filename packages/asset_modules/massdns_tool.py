@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 from shutil import which
-from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 from os import chmod, path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL

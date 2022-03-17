@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 from shutil import which
-from packages.static_paths import HM_WORDLISTS_DIR
 from os import chmod, path, makedirs
 import wget
 

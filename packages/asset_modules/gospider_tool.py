@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 from shutil import which
-from packages.static_paths import ENDP_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text
 from os import chmod, path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT

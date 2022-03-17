@@ -2,7 +2,6 @@
 
 from shutil import which
 import subprocess
-from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.common_utils import store_results
 from os import chmod, path, makedirs
 from subprocess import Popen, PIPE

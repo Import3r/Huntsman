@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 from shutil import which
-from packages.static_paths import HM_WORDLISTS_DIR, RES_ROOT_DIR
 from packages.install_handler import asset_available
 from os import chmod, path
 from sys import executable

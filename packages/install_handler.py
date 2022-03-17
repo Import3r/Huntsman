@@ -1,6 +1,5 @@
 #! /usr/bin/python3
 
-from packages.static_paths import INST_TOOLS_DIR, PATHS_JSON_FILE
 from os import path, geteuid
 from subprocess import run, STDOUT
 from shutil import which
