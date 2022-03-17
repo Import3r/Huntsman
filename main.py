@@ -34,7 +34,7 @@ def main():
 
     amass_thread = HM.activate("amass", (operation.targets,))
     assetfinder_thread = HM.activate("assetfinder", (operation.targets,)) 
-    dorkers_thread = HM.activate("github_dorkers", (operation.targets, operation.targets,))
+    dorkers_thread = HM.activate("github_dorkers", (operation.targets, operation.github_token,))
     subdom_hunters = (amass_thread, assetfinder_thread, dorkers_thread)
 
     for t in subdom_hunters: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
