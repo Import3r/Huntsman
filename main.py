@@ -1,14 +1,10 @@
 #! /usr/bin/python3
 
-from packages.static_paths import ENDP_BASE_LIVE_FILE, RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
-from packages.common_utils import valid_github_token, is_valid_domain_format
-from packages.install_handler import check_for_assets
-import packages.asset_loader
-import packages.hound_modules.subdomain_hounds as subdomain_hound
-import packages.hound_modules.endpoint_hounds as endpoint_hound
-from os import path, mkdir, setpgrp, killpg 
-from sys import argv
-import time, signal, threading
+from packages.Hunt import Hunt
+from packages.Huntsman import Huntsman
+from packages.static_paths import RES_ROOT_DIR, SUB_ALL_RSLVD_FILE
+from os import setpgrp, killpg 
+import time, signal
 
 banner = """
 
@@ -19,74 +15,38 @@ banner = """
 """
 
 
-def verify_ready():
-    # ensure correct usage of huntsman
-    try:
-        target_arg = argv[1]
-        github_token = argv[2]
-        try:
-            blacklist_arg = argv[3]
-        except:
-            blacklist_arg = ''
-    except:
-        print('[!] usage:')
-        print('\n    ' + argv[0] + ' TARGET_DOMAINS' +
-              ' GITHUB_TOKEN' + ' [DOMAIN_BLACKLIST]')
-        print('\n[!] comma separate multi-inputs')
-        exit()
-
-    targets = set(target_arg.split(','))
-    blacklist_targets = set(blacklist_arg.split(','))
-
-    if not valid_github_token(github_token):
-        print("[X] Faulty Github token, please provide a valid one")
-        exit()
-
-    for target in targets:
-        if not is_valid_domain_format(target):
-            print("[X] The target: '" + target + "' is not a valid domain format. Make sure to use a valid domain with no schema")
-            exit()
-
-    # checking for previous runs of 'Huntsman'
-    if path.isdir(RES_ROOT_DIR):
-        print("[!] Results directory exists. Move or delete '" + RES_ROOT_DIR + "' to initiate.")
-        print("[!] Exiting to avoid loss of previous results...")
-        exit()
-    else:
-        mkdir(RES_ROOT_DIR)
-    
-    assets = list(packages.asset_loader.loaded_assets.values())
-    
-    check_for_assets(assets)
-
-    print("\n\n[+] Ready to engage.\n\n")
-    time.sleep(1)
-    return (targets, blacklist_targets, github_token)
-
-
 def main():
     print(banner)
 
-    targets, blacklist_targets, github_token = verify_ready()
+    operation = Hunt()
+
+    operation.check_arguments()
+    operation.validate_arguments()
+    
+    HM = Huntsman(RES_ROOT_DIR, operation)
+    HM.ensure_hounds()
+
+    print("\n\n[+] Ready to engage.\n\n")
+    time.sleep(1)
 
     print("[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
-    all_subdomains = subdomain_hound.activate(targets, github_token, blacklist_targets)
+    amass_thread = HM.activate("amass", (operation.targets,))
+    assetfinder_thread = HM.activate("assetfinder", (operation.targets,)) 
+    dorkers_thread = HM.activate("github_dorkers", (operation.targets, operation.targets,))
+    subdom_hunters = (amass_thread, assetfinder_thread, dorkers_thread)
 
-    aquatone = packages.asset_loader.loaded_assets["aquatone"]
-
-    aquatone_thread = threading.Thread(target=aquatone.thread_handler, args=(SUB_ALL_RSLVD_FILE,))
-    aquatone_thread.start()
-
-    all_endpoints = endpoint_hound.activate(all_subdomains, SUB_ALL_RSLVD_FILE)
-
-    aquatone_thread.join()
+    for t in subdom_hunters: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
+    
+    # all_subdoms = set().union(*[hound.results_set for hound in subdom_hunters])
+    # aquatone_thread = HM.activate("aquatone", (SUB_ALL_RSLVD_FILE,))
+    # aquatone_thread.join()
 
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 
-    print("[+] Operation succeeded. All results are stored at '" + RES_ROOT_DIR + "'.")
+    print("[+] Operation succeeded. All results are stored at '" + operation.res_root_dir + "'.")
     time.sleep(1)
     print("[+] Shutting down...")
     time.sleep(2)

@@ -14,8 +14,9 @@ class Altdns:
     permutations_list_name = "altdns-subdom-keywords.txt"
 
 
-    def __init__(self, given_path) -> None:
-        self.asset_path = given_path
+    def __init__(self, operation) -> None:
+        self.paths_file = operation.paths_json_file
+        self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_file = path.join(RES_ROOT_DIR, self.output_file_name)
         self.permutations_list = path.join(HM_WORDLISTS_DIR, self.permutations_list_name)
 

@@ -18,8 +18,9 @@ class Amass:
     compiled_zip_url = "https://github.com/OWASP/Amass/releases/download/v3.13.4/amass_linux_amd64.zip"
 
 
-    def __init__(self, given_path) -> None:
-        self.asset_path = given_path
+    def __init__(self, operation) -> None:
+        self.paths_file = operation.paths_json_file
+        self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""

@@ -4,7 +4,6 @@ from shutil import which
 from packages.static_paths import INST_TOOLS_DIR, SUB_ALL_RSLVD_FILE
 from packages.install_handler import update_install_path
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
-import packages.asset_loader
 from os import chmod, path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
 import zipfile, wget
@@ -18,8 +17,9 @@ class MassDNS:
     dns_resolvers_list = ""
 
 
-    def __init__(self, given_path) -> None:
-        self.asset_path = given_path
+    def __init__(self, operation) -> None:
+        self.paths_file = operation.paths_json_file
+        self.asset_path = self.paths_file.read_value(self.asset_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
@@ -58,9 +58,9 @@ class MassDNS:
         return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
-    def thread_handler(self, domains_file):
+    def thread_handler(self, domains_file, dns_resolver):
         print("[+] Firing 'MassDNS' to resolve collected subdomains...")
-        self.dns_resolvers_list = packages.asset_loader.loaded_assets["dns_resolvers_ip_list"].location()
+        self.dns_resolvers_list = dns_resolver.location()
         massdns_proc = self.subdom_resolver_proc(domains_file)
         self.output_buffer = massdns_proc.communicate()[0].decode("utf-8")
         print("[+] MassDNS resolved the following subdomains:", self.output_buffer, sep='\n\n')

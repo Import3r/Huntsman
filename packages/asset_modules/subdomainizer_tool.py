@@ -20,8 +20,9 @@ class Subdomainizer:
     remote_repo_url = "https://github.com/nsonaniya2010/SubDomainizer.git"
 
 
-    def __init__(self, given_path) -> None:
-        self.asset_path = given_path
+    def __init__(self, operation) -> None:
+        self.paths_file = operation.paths_json_file
+        self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
         self.subs_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.subs_file_name)
         self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 

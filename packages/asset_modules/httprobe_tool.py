@@ -14,8 +14,9 @@ class HttProbe:
     remote_repo_url = "github.com/tomnomnom/httprobe"
 
 
-    def __init__(self, given_path) -> None:
-        self.asset_path = given_path
+    def __init__(self, operation) -> None:
+        self.paths_file = operation.paths_json_file
+        self.asset_path = self.paths_file.read_value(self.asset_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
