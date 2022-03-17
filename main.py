@@ -32,12 +32,13 @@ def main():
     print("[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
-    amass_thread = HM.activate("amass", (operation.targets,))
-    assetfinder_thread = HM.activate("assetfinder", (operation.targets,)) 
-    dorkers_thread = HM.activate("github_dorkers", (operation.targets, operation.github_token,))
-    subdom_hunters = (amass_thread, assetfinder_thread, dorkers_thread)
+    thread_batch = (
+        HM.activate("amass", (operation.targets,)),
+        HM.activate("assetfinder", (operation.targets,)),
+        HM.activate("github_dorkers", (operation.targets, operation.github_token,)),
+    )
 
-    for t in subdom_hunters: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
+    for t in thread_batch: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
     
     # all_subdoms = set().union(*[hound.results_set for hound in subdom_hunters])
     # aquatone_thread = HM.activate("aquatone", (SUB_ALL_RSLVD_FILE,))
