@@ -17,8 +17,8 @@ class Altdns:
     def __init__(self, operation) -> None:
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.output_file = path.join(RES_ROOT_DIR, self.output_file_name)
-        self.permutations_list = path.join(HM_WORDLISTS_DIR, self.permutations_list_name)
+        self.output_file = path.join(operation.res_root_dir, self.output_file_name)
+        self.permutations_list = path.join(operation.wordlists_dir, self.permutations_list_name)
 
 
     def subdomains_perms(self, subdoms_file):

@@ -16,12 +16,12 @@ class GoSpider:
     remote_repo_url = "github.com/jaeles-project/gospider"
 
 
-    def __init__(self, operation) -> None:
+    def __init__(self, operation, ep_results_dir) -> None:
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.output_dir = path.join(ENDP_HOUND_RES_DIR, self.results_dir_name)
-        self.output_file = path.join(ENDP_HOUND_RES_DIR, self.output_file_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_dir = path.join(ep_results_dir, self.results_dir_name)
+        self.output_file = path.join(ep_results_dir, self.output_file_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
 

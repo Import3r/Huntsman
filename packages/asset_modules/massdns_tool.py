@@ -20,7 +20,7 @@ class MassDNS:
     def __init__(self, operation) -> None:
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
 
@@ -58,7 +58,7 @@ class MassDNS:
         return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
-    def thread_handler(self, domains_file, dns_resolver):
+    def thread_handler(self, domains_file, dns_resolver, sub_all_resolved_file):
         print("[+] Firing 'MassDNS' to resolve collected subdomains...")
         self.dns_resolvers_list = dns_resolver.location()
         massdns_proc = self.subdom_resolver_proc(domains_file)
@@ -66,5 +66,5 @@ class MassDNS:
         print("[+] MassDNS resolved the following subdomains:", self.output_buffer, sep='\n\n')
         # clean up duplicates and non-valid domain formats from output before storing results
         self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
-        store_results(text_from_set_of_lines(self.results_set), SUB_ALL_RSLVD_FILE)
+        store_results(text_from_set_of_lines(self.results_set), sub_all_resolved_file)
         print("[+] Resolving subdomains completed")

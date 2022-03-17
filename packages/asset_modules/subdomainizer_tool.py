@@ -21,13 +21,14 @@ class Subdomainizer:
 
 
     def __init__(self, operation) -> None:
+        self.inst_tools_dir = operation.inst_tools_dir
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
-        self.subs_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.subs_file_name)
-        self.secret_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.secrets_file_name) 
-        self.cloud_loot_file = path.join(RES_ROOT_DIR, self.results_dir_name, self.cloud_file_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_dir = path.join(operation.res_root_dir, self.results_dir_name)
+        self.subs_loot_file = path.join(operation.res_root_dir, self.results_dir_name, self.subs_file_name)
+        self.secret_loot_file = path.join(operation.res_root_dir, self.results_dir_name, self.secrets_file_name) 
+        self.cloud_loot_file = path.join(operation.res_root_dir, self.results_dir_name, self.cloud_file_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
         self.req_file = path.join(self.install_path, self.req_file_name)
 
     
@@ -43,7 +44,7 @@ class Subdomainizer:
 
     def install(self):
         if not path.exists(self.install_path):
-            git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
+            git.cmd.Git(self.inst_tools_dir).clone(self.remote_repo_url)
         run([executable, "-m", "pip", "install", "-r", self.req_file], stderr=STDOUT)
         
         if path.exists(path.join(self.install_path, self.asset_name)):

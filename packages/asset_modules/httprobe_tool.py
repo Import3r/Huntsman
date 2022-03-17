@@ -17,7 +17,7 @@ class HttProbe:
     def __init__(self, operation) -> None:
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
         self.output_buffer = ""
         self.results_set = set()
 
@@ -50,7 +50,7 @@ class HttProbe:
         return Popen(f"{self.asset_path} -t 5000 -p http:8000 -p http:8080 -p https:8443", shell=True, stdin=PIPE, stdout=PIPE)
 
 
-    def thread_handler(self, subdomains):
+    def thread_handler(self, subdomains, ep_base_live_file):
         print("[+] Firing 'httprobe' to find the live subdomains...")
         httprobe_proc = self.discovery_proc()
         httprobe_stdin = text_from_set_of_lines(subdomains).encode('utf-8')
@@ -58,5 +58,5 @@ class HttProbe:
         print("[+] httprobe found the following web services:", self.output_buffer, sep='\n\n')
         # clean up duplicates from output before storing results
         self.results_set = set(url.rstrip('/') for url in set_of_lines_from_text(self.output_buffer))
-        store_results(text_from_set_of_lines(self.results_set), ENDP_BASE_LIVE_FILE)
+        store_results(text_from_set_of_lines(self.results_set), ep_base_live_file)
         print("[+] Live web services discovery completed")

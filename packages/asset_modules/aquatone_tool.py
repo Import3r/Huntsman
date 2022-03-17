@@ -18,10 +18,11 @@ class Aquatone:
 
 
     def __init__(self, operation) -> None:
+        self.inst_tools_dir = operation.inst_tools_dir
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.output_dir = path.join(RES_ROOT_DIR, self.results_dir_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_dir = path.join(operation.res_root_dir, self.results_dir_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
 
 
     def update_install_path(self, new_path):
@@ -36,7 +37,7 @@ class Aquatone:
 
     def install(self):
         if not asset_available("chromium-browser") and not asset_available("google-chrome"):
-            browser = ChromiumBrowser()
+            browser = ChromiumBrowser(self.inst_tools_dir)
             browser.install()
             
         makedirs(self.install_path, exist_ok=True)

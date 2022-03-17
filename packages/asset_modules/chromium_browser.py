@@ -12,8 +12,8 @@ class ChromiumBrowser:
     package_url = "https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
 
 
-    def __init__(self) -> None:
-        self.install_path = INST_TOOLS_DIR
+    def __init__(self, install_path) -> None:
+        self.install_path = install_path
 
 
     def update_install_path(self, new_path):
@@ -34,7 +34,7 @@ class ChromiumBrowser:
                 exit()
         else:
             makedirs(self.install_path, exist_ok=True)
-            deb_pkg_path = path.join(INST_TOOLS_DIR, "google-chrome.deb")
+            deb_pkg_path = path.join(self.install_path, "google-chrome.deb")
             wget.download(self.package_url, deb_pkg_path)
             install_apt_package(path.abspath(deb_pkg_path))
             if not asset_available("google-chrome"):

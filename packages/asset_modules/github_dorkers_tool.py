@@ -19,11 +19,12 @@ class GithubDorkers:
     remote_repo_url = "https://github.com/gwen001/github-search.git"
 
 
-    def __init__(self, operation) -> None:
+    def __init__(self, operation, subdom_results_dir) -> None:
+        self.inst_tools_dir = operation.inst_tools_dir
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
-        self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
+        self.output_file = path.join(subdom_results_dir, self.output_file_name)
+        self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
         self.req_file = path.join(self.install_path, self.req_file_name)
 
 
@@ -39,7 +40,7 @@ class GithubDorkers:
 
     def install(self):
         if not path.exists(self.install_path):
-            git.cmd.Git(INST_TOOLS_DIR).clone(self.remote_repo_url)
+            git.cmd.Git(self.inst_tools_dir).clone(self.remote_repo_url)
         run([executable, "-m", "pip", "install", "-r", self.req_file], stderr=STDOUT)
         
         if path.exists(path.join(self.install_path, self.asset_name)):

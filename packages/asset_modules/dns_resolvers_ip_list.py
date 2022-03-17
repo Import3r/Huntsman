@@ -21,7 +21,7 @@ class DNSResolversList:
     def __init__(self, operation) -> None:
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
-        self.install_path = HM_WORDLISTS_DIR
+        self.install_path = operation.wordlists_dir
 
 
     def location(self):

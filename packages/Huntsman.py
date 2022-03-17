@@ -27,7 +27,8 @@ class Huntsman:
     base_live_ep_file_name = 'base-live-endpoints.all'
 
 
-    def __init__(self, root_res_dir, operation) -> None:
+    def __init__(self, operation) -> None:
+        root_res_dir = operation.res_root_dir
         self.operation = operation
         self.subdom_results_dir = path.join(root_res_dir, self.subdom_results_dir_name)
         self.ep_results_dir = path.join(root_res_dir, self.ep_results_dir_name)
@@ -40,14 +41,14 @@ class Huntsman:
         makedirs(self.ep_results_dir, exist_ok=True)
 
         self.hounds = {
-            "amass" : Amass(self.operation),
+            "amass" : Amass(self.operation, self.subdom_results_dir),
+            "github_dorkers" : GithubDorkers(self.operation, self.subdom_results_dir),
+            "assetfinder" : AssetFinder(self.operation, self.subdom_results_dir),
             "aquatone" : Aquatone(self.operation),
-            "github_dorkers" : GithubDorkers(self.operation),
             "massdns" : MassDNS(self.operation),
-            "assetfinder" : AssetFinder(self.operation),
             "subdomainizer" : Subdomainizer(self.operation),
-            "gospider" : GoSpider(self.operation),
-            "waybackurls" : Waybackurls(self.operation),
+            "gospider" : GoSpider(self.operation, self.ep_results_dir),
+            "waybackurls" : Waybackurls(self.operation, self.ep_results_dir),
             "qsreplace" : QSReplace(self.operation),
             "httprobe" : HttProbe(self.operation),
             "dns_resolvers_ip_list" : DNSResolversList(self.operation)

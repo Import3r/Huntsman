@@ -23,7 +23,7 @@ def main():
     operation.check_arguments()
     operation.validate_arguments()
     
-    HM = Huntsman(RES_ROOT_DIR, operation)
+    HM = Huntsman(operation)
     HM.ensure_hounds()
 
     print("\n\n[+] Ready to engage.\n\n")
