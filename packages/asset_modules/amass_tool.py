@@ -4,9 +4,9 @@ from shutil import which
 import subprocess
 from packages.static_paths import SUB_HOUND_RES_DIR, INST_TOOLS_DIR
 from packages.install_handler import update_install_path
-from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
+from packages.common_utils import store_results
 from os import chmod, path, makedirs
-from subprocess import Popen, PIPE, DEVNULL
+from subprocess import Popen, PIPE
 import zipfile, wget
 
 
@@ -23,8 +23,6 @@ class Amass:
         self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_file = path.join(SUB_HOUND_RES_DIR, self.output_file_name)
         self.install_path = path.join(INST_TOOLS_DIR, self.remote_repo_name)
-        self.output_buffer = ""
-        self.results_set = set()
 
 
     def update_install_path(self, new_path):
@@ -62,9 +60,8 @@ class Amass:
         print("[+] Firing 'Amass' to hunt subdomains...")
         target_domains = ','.join(domains)
         amass_proc = self.enumerator_proc(target_domains)
-        self.output_buffer = amass_proc.communicate()[0].decode("utf-8")
-        print("[+] Amass retrieved the following subdomains:", self.output_buffer, sep='\n\n')
-        # clean up duplicates and non-valid domain formats from output before storing results
-        self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
-        store_results(text_from_set_of_lines(self.results_set), self.output_file)
+        output_buffer = amass_proc.communicate()[0].decode("utf-8")
+        store_results(output_buffer, self.output_file)
+        print("[+] Amass retrieved the following subdomains:", output_buffer, sep='\n\n')
         print("[+] Amass hunt completed")
+        print("[+] 'HUNTSMAN' sequence in progress...\n\n")
