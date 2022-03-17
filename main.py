@@ -38,7 +38,7 @@ def main():
         HM.activate("github_dorkers", (operation.targets, operation.github_token,)),
     )
 
-    for t in thread_batch: print("[+] 'HUNTSMAN' sequence in progress...\n\n"); t.join()
+    for t in thread_batch: t.join()
     
     # all_subdoms = set().union(*[hound.results_set for hound in subdom_hunters])
     # aquatone_thread = HM.activate("aquatone", (SUB_ALL_RSLVD_FILE,))
