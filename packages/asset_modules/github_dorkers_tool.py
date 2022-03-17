@@ -8,6 +8,7 @@ from os import chmod, path
 from sys import executable
 from subprocess import Popen, run, STDOUT, PIPE
 import git
+import time
 
 
 class GithubDorkers:
@@ -61,6 +62,7 @@ class GithubDorkers:
             result = dorkers_proc.communicate()[0].decode('utf-8')
             print("[+] Attempted to find subdomains on github for '" + target + "':", result, sep='\n\n')
             self.output_buffer += result
+            time.sleep(5)
         # clean up duplicates and non-valid domain formats from output before storing results
         self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
         store_results(text_from_set_of_lines(self.results_set), self.output_file)
