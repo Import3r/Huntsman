@@ -1,5 +1,6 @@
 #! /usr/bin/python3
 
+from subprocess import run, DEVNULL
 import re, requests
 
 
@@ -52,3 +53,7 @@ def resolved_targets(targets):
         except:
             print('[+] removed: ' + subdomain)
     return unique_dest_set
+
+
+def concat_uniqe_lines(src_paths_list, dest_file_path):
+    run(f"awk '!seen[$0]++ && NF' {' '.join(src_paths_list)} > {dest_file_path}", shell=True, stdout=DEVNULL)

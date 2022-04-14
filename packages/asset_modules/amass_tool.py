@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 from shutil import which
-import subprocess
+import threading
 from packages.common_utils import store_results
 from os import chmod, path, makedirs
 from subprocess import Popen, PIPE
@@ -17,6 +17,7 @@ class Amass:
 
 
     def __init__(self, operation, subdom_results_dir) -> None:
+        self.op = operation
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_file = path.join(subdom_results_dir, self.output_file_name)
@@ -54,12 +55,18 @@ class Amass:
         return Popen(f"{self.asset_path} enum --passive -d {domains} -nolocaldb", shell=True, stdout=PIPE)
 
 
-    def thread_handler(self, domains):
+    def thread_handler(self):
         print("[+] Firing 'Amass' to hunt subdomains...")
-        target_domains = ','.join(domains)
+        target_domains = ','.join(self.op.targets)
         amass_proc = self.enumerator_proc(target_domains)
         output_buffer = amass_proc.communicate()[0].decode("utf-8")
         store_results(output_buffer, self.output_file)
         print("[+] Amass retrieved the following subdomains:", output_buffer, sep='\n\n')
         print("[+] Amass hunt completed")
         print("[+] 'HUNTSMAN' sequence in progress...\n\n")
+
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread

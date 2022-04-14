@@ -12,6 +12,7 @@ from packages.asset_modules.subdomainizer_tool import Subdomainizer
 from packages.asset_modules.waybackurls_tool import Waybackurls
 from packages.asset_modules.dns_resolvers_ip_list import DNSResolversList
 from os import makedirs, path
+from packages.common_utils import concat_uniqe_lines
 from packages.install_handler import get_valid_path, prompt_decision
 import threading
 
@@ -94,7 +95,19 @@ class Huntsman:
                 exit()
 
 
-    def activate(self, hound_name, arg_tuple):
-        hound_thread = threading.Thread(target=self.hounds[hound_name].thread_handler, args=arg_tuple)
-        hound_thread.start()
-        return hound_thread
+    def release_batch(self, hound_names):
+        for h in hound_names:
+            if self.hounds.get(h) is None:
+                raise Exception("Error: Unable to find '" + h + "' hound for release. Aborting...")
+        
+        thread_batch = set(self.hounds[hound].activate() for hound in hound_names)
+        
+        for t in thread_batch: t.join()
+
+
+    def merge_outfiles(self, hound_names, dest_file_path):
+        for h in hound_names:
+            if self.hounds.get(h) is None:
+                raise Exception("Error: Unable to find '" + h + "' hound for yielding. Aborting...")
+        outfiles = set(self.hounds[hound].output_file for hound in hound_names)
+        concat_uniqe_lines(outfiles, dest_file_path)

@@ -3,6 +3,7 @@
 from packages.Hunt import Hunt
 from packages.Huntsman import Huntsman
 from os import setpgrp, killpg 
+from packages.common_utils import concat_uniqe_lines
 import time, signal
 
 banner = """
@@ -31,17 +32,10 @@ def main():
     print("[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
-    thread_batch = (
-        HM.activate("amass", (operation.targets,)),
-        HM.activate("assetfinder", (operation.targets,)),
-        HM.activate("github_dorkers", (operation.targets, operation.github_token,)),
-    )
+    hound_batch = {"amass", "assetfinder", "github_dorkers"}
 
-    for t in thread_batch: t.join()
-    
-    # all_subdoms = set().union(*[hound.results_set for hound in subdom_hunters])
-    # aquatone_thread = HM.activate("aquatone", (SUB_ALL_RSLVD_FILE,))
-    # aquatone_thread.join()
+    HM.release_batch(hound_batch)
+    HM.merge_outfiles(hound_batch, HM.raw_subdom_file)
 
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)

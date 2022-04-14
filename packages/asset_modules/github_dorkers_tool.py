@@ -6,6 +6,7 @@ from os import chmod, path
 from sys import executable
 from subprocess import Popen, run, STDOUT, PIPE
 import git
+import threading
 import time
 
 
@@ -18,6 +19,7 @@ class GithubDorkers:
 
 
     def __init__(self, operation, subdom_results_dir) -> None:
+        self.op = operation
         self.inst_tools_dir = operation.inst_tools_dir
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
@@ -52,11 +54,11 @@ class GithubDorkers:
         return Popen(f"{self.asset_path} -t {gh_token} -d {target}", shell=True, stdout=PIPE)
 
 
-    def thread_handler(self, targets, gh_token):
+    def thread_handler(self):
         print("[+] Dorking GitHub for subdomains...")
         output_buffer = ""
-        for target in targets:
-            dorkers_proc = self.enumerator_proc(target, gh_token)
+        for target in self.op.targets:
+            dorkers_proc = self.enumerator_proc(target, self.op.github_token)
             result = dorkers_proc.communicate()[0].decode('utf-8')
             print("[+] Attempted to find subdomains on github for '" + target + "':", result, sep='\n\n')
             output_buffer += result.rstrip() + "\n"
@@ -65,3 +67,8 @@ class GithubDorkers:
         print("[+] Dorking GitHub for subdomains completed")
         print("[+] 'HUNTSMAN' sequence in progress...\n\n")
 
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread

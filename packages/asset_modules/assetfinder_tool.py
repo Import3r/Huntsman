@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 from shutil import which
+import threading
 from packages.common_utils import store_results
 from os import chmod, path, makedirs, rename
 from subprocess import PIPE, Popen, run, STDOUT
@@ -14,6 +15,7 @@ class AssetFinder:
 
 
     def __init__(self, operation, subdom_results_dir) -> None:
+        self.op = operation
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
         self.output_file = path.join(subdom_results_dir, self.output_file_name)
@@ -48,10 +50,10 @@ class AssetFinder:
         return Popen(f"{self.asset_path} -subs-only {target}", shell=True, stdout=PIPE)
 
 
-    def thread_handler(self, targets):
+    def thread_handler(self):
         print("[+] Firing 'Assetfinder' to hunt subdomains...")
         output_buffer = ""
-        for target in targets:
+        for target in self.op.targets:
             assetf_proc = self.enumerator_proc(target)
             result = assetf_proc.communicate()[0].decode('utf-8')
             print("[+] Assetfinder found the following subdomains for '" + target + "':", result, sep='\n\n')
@@ -60,3 +62,8 @@ class AssetFinder:
         print("[+] Assetfinder hunt completed")
         print("[+] 'HUNTSMAN' sequence in progress...\n\n")
 
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread
