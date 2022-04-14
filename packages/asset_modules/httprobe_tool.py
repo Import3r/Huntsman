@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 from shutil import which
+import threading
 from packages.common_utils import store_results, set_of_lines_from_text, text_from_set_of_lines
 from os import chmod, path, makedirs, rename
 from subprocess import Popen, run, PIPE, STDOUT
@@ -12,12 +13,12 @@ class HttProbe:
     remote_repo_url = "github.com/tomnomnom/httprobe"
 
 
-    def __init__(self, operation) -> None:
+    def __init__(self, operation, HM) -> None:
+        self.output_file = HM.base_live_ep_file
+        self.input_file = HM.resolved_subdom_file
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
         self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
-        self.output_buffer = ""
-        self.results_set = set()
 
 
     def update_install_path(self, new_path):
@@ -48,13 +49,22 @@ class HttProbe:
         return Popen(f"{self.asset_path} -t 5000 -p http:8000 -p http:8080 -p https:8443", shell=True, stdin=PIPE, stdout=PIPE)
 
 
-    def thread_handler(self, subdomains, ep_base_live_file):
+    def thread_handler(self):
         print("[+] Firing 'httprobe' to find the live subdomains...")
-        httprobe_proc = self.discovery_proc()
-        httprobe_stdin = text_from_set_of_lines(subdomains).encode('utf-8')
-        self.output_buffer = httprobe_proc.communicate(input=httprobe_stdin)[0].decode("utf-8")
-        print("[+] httprobe found the following web services:", self.output_buffer, sep='\n\n')
-        # clean up duplicates from output before storing results
-        self.results_set = set(url.rstrip('/') for url in set_of_lines_from_text(self.output_buffer))
-        store_results(text_from_set_of_lines(self.results_set), ep_base_live_file)
+        with open(self.input_file) as f:
+            httprobe_stdin = f.read().encode('utf-8')
+        if httprobe_stdin:
+            httprobe_proc = self.discovery_proc()
+            output_buffer = httprobe_proc.communicate(input=httprobe_stdin)[0].decode("utf-8")
+        else:
+            output_buffer = ''
+        store_results(output_buffer, self.output_file)
+        print("[+] httprobe found the following web services:", output_buffer, sep='\n\n')
         print("[+] Live web services discovery completed")
+        print("[+] 'HUNTSMAN' sequence in progress...\n\n")
+
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread

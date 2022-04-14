@@ -29,10 +29,9 @@ class Huntsman:
 
 
     def __init__(self, operation) -> None:
-        root_res_dir = operation.res_root_dir
         self.operation = operation
-        self.subdom_results_dir = path.join(root_res_dir, self.subdom_results_dir_name)
-        self.ep_results_dir = path.join(root_res_dir, self.ep_results_dir_name)
+        self.subdom_results_dir = path.join(operation.res_root_dir, self.subdom_results_dir_name)
+        self.ep_results_dir = path.join(operation.res_root_dir, self.ep_results_dir_name)
         self.raw_subdom_file = path.join(self.subdom_results_dir, self.raw_subdom_file_name)
         self.raw_ep_file = path.join(self.ep_results_dir, self.raw_ep_file_name)
         self.resolved_subdom_file = path.join(self.subdom_results_dir, self.resolved_subdom_file_name)
@@ -42,18 +41,18 @@ class Huntsman:
         makedirs(self.ep_results_dir, exist_ok=True)
 
         self.hounds = {
-            "amass" : Amass(self.operation, self.subdom_results_dir),
-            "github_dorkers" : GithubDorkers(self.operation, self.subdom_results_dir),
-            "assetfinder" : AssetFinder(self.operation, self.subdom_results_dir),
-            "aquatone" : Aquatone(self.operation),
-            "subdomainizer" : Subdomainizer(self.operation),
-            "gospider" : GoSpider(self.operation, self.ep_results_dir),
-            "waybackurls" : Waybackurls(self.operation, self.ep_results_dir),
-            "qsreplace" : QSReplace(self.operation),
-            "httprobe" : HttProbe(self.operation),
-            "dns_resolvers_ip_list" : DNSResolversList(self.operation)
+            "amass" : Amass(operation, self.subdom_results_dir),
+            "github_dorkers" : GithubDorkers(operation, self.subdom_results_dir),
+            "assetfinder" : AssetFinder(operation, self.subdom_results_dir),
+            "dns_resolvers_ip_list" : DNSResolversList(operation),
+            "httprobe" : HttProbe(operation, self),
+            "aquatone" : Aquatone(operation),
+            "subdomainizer" : Subdomainizer(operation),
+            "gospider" : GoSpider(operation, self.ep_results_dir),
+            "waybackurls" : Waybackurls(operation, self.ep_results_dir),
+            "qsreplace" : QSReplace(operation)
         }
-        self.hounds["massdns"] = MassDNS(self.operation, self.hounds["dns_resolvers_ip_list"], self.raw_subdom_file ,self.resolved_subdom_file)
+        self.hounds["massdns"] = MassDNS(operation, self.hounds["dns_resolvers_ip_list"], self.raw_subdom_file ,self.resolved_subdom_file)
 
 
     def auto_install(self, hounds):
