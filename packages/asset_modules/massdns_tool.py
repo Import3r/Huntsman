@@ -1,6 +1,7 @@
 #! /usr/bin/python3
 
 from shutil import which
+import threading
 from packages.common_utils import store_results, text_from_set_of_lines, set_of_lines_from_text, is_valid_domain_format
 from os import chmod, path, makedirs
 from subprocess import run, Popen, PIPE, DEVNULL
@@ -15,12 +16,13 @@ class MassDNS:
     dns_resolvers_list = ""
 
 
-    def __init__(self, operation) -> None:
+    def __init__(self, operation, dnsresolver, input_file, output_file) -> None:
+        self.dns_resolvers_list = dnsresolver.location()
+        self.raw_domains_file = input_file
+        self.output_file = output_file
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
         self.install_path = path.join(operation.inst_tools_dir, self.remote_repo_name)
-        self.output_buffer = ""
-        self.results_set = set()
 
 
     def update_install_path(self, new_path):
@@ -53,16 +55,20 @@ class MassDNS:
 
 
     def subdom_resolver_proc(self, domains_file):
-        return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | sort -u", shell=True, stdout=PIPE, stderr=DEVNULL)
+        return Popen(f"{self.asset_path} -r {self.dns_resolvers_list} -t AAAA {domains_file} -o S | grep -oE '^([A-Za-z0-9\-]+\.)*[A-Za-z0-9\-]+\.[A-Za-z0-9]+' | awk '!seen[$0]++ && NF'", shell=True, stdout=PIPE, stderr=DEVNULL)
 
 
-    def thread_handler(self, domains_file, dns_resolver, sub_all_resolved_file):
+    def thread_handler(self):
         print("[+] Firing 'MassDNS' to resolve collected subdomains...")
-        self.dns_resolvers_list = dns_resolver.location()
-        massdns_proc = self.subdom_resolver_proc(domains_file)
-        self.output_buffer = massdns_proc.communicate()[0].decode("utf-8")
-        print("[+] MassDNS resolved the following subdomains:", self.output_buffer, sep='\n\n')
-        # clean up duplicates and non-valid domain formats from output before storing results
-        self.results_set = set(subdom for subdom in set_of_lines_from_text(self.output_buffer) if is_valid_domain_format(subdom))
-        store_results(text_from_set_of_lines(self.results_set), sub_all_resolved_file)
+        massdns_proc = self.subdom_resolver_proc(self.raw_domains_file)
+        output_buffer = massdns_proc.communicate()[0].decode("utf-8")
+        store_results(output_buffer, self.output_file)
+        print("[+] MassDNS resolved the following subdomains:", output_buffer, sep='\n\n')
         print("[+] Resolving subdomains completed")
+        print("[+] 'HUNTSMAN' sequence in progress...\n\n")
+
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread

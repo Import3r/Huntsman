@@ -37,6 +37,9 @@ def main():
     HM.release_batch(hound_batch)
     HM.merge_outfiles(hound_batch, HM.raw_subdom_file)
 
+    HM.release_batch({"massdns"})  # resolve collected raw subdomains
+
+
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 

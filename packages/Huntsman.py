@@ -46,7 +46,6 @@ class Huntsman:
             "github_dorkers" : GithubDorkers(self.operation, self.subdom_results_dir),
             "assetfinder" : AssetFinder(self.operation, self.subdom_results_dir),
             "aquatone" : Aquatone(self.operation),
-            "massdns" : MassDNS(self.operation),
             "subdomainizer" : Subdomainizer(self.operation),
             "gospider" : GoSpider(self.operation, self.ep_results_dir),
             "waybackurls" : Waybackurls(self.operation, self.ep_results_dir),
@@ -54,6 +53,7 @@ class Huntsman:
             "httprobe" : HttProbe(self.operation),
             "dns_resolvers_ip_list" : DNSResolversList(self.operation)
         }
+        self.hounds["massdns"] = MassDNS(self.operation, self.hounds["dns_resolvers_ip_list"], self.raw_subdom_file ,self.resolved_subdom_file)
 
 
     def auto_install(self, hounds):
