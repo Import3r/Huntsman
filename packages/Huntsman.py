@@ -94,14 +94,10 @@ class Huntsman:
                 exit()
 
 
-    def release_batch(self, hound_names):
-        for h in hound_names:
-            if self.hounds.get(h) is None:
-                raise Exception("Error: Unable to find '" + h + "' hound for release. Aborting...")
-        
-        thread_batch = set(self.hounds[hound].activate() for hound in hound_names)
-        
-        for t in thread_batch: t.join()
+    def activate_hound(self, hound_name):
+        if self.hounds.get(hound_name) is None:
+                raise Exception("Error: Unable to find '" + hound_name + "' hound for activation. Aborting...")
+        return self.hounds[hound_name].activate()
 
 
     def merge_outfiles(self, hound_names, dest_file_path):

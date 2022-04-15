@@ -32,16 +32,31 @@ def main():
     print("[+] 'HUNTSMAN' sequence initiated")
     time.sleep(2)
 
+    thread_pool = set()
+
     # release subdom hounds to collect subdomains
     hound_batch = {"amass", "assetfinder", "github_dorkers"}
-    HM.release_batch(hound_batch)
+    for h in hound_batch:
+        thread_pool.add( HM.activate_hound(h) )
+
+    # wait for subhunters to finish collecting raw subdomains
+    for t in thread_pool: t.join()
+    thread_pool.clear()
+
     HM.merge_outfiles(hound_batch, HM.raw_subdom_file)
 
-    HM.release_batch({"massdns", "waybackurls"})  # Change waybackurls to have a different thread path (takes too long)
-    HM.release_batch({"httprobe"})  # filter resolved subdomains with live web apps
-    HM.release_batch({"aquatone"})
-    HM.release_batch({"gospider"})
+    thread_pool.add( HM.activate_hound("waybackurls") )
+    HM.activate_hound("massdns").join()  # wait for MassDNS to resolve raw subdomains
+    HM.activate_hound("httprobe").join()  # filter resolved subdomains with live web apps
+    HM.activate_hound("aquatone").join()  # screenshot live web apps 
+    thread_pool.add( HM.activate_hound("gospider") )
+    
+    # wait for running hounds
+    for t in thread_pool: t.join()
+    thread_pool.clear()
 
+    HM.merge_outfiles({"gospider", "waybackurls"}, HM.raw_ep_file)
+    
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 
