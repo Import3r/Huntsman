@@ -39,8 +39,9 @@ def main():
 
     HM.release_batch({"massdns"})  # resolve collected raw subdomains
     HM.release_batch({"httprobe"})  # filter resolved subdomains with live web apps
-    HM.release_batch({"aquatone"})  # screenshot the live web apps
-    
+    HM.release_batch({"aquatone"}) # Add wayback here
+    HM.release_batch({"gospider"})
+
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 

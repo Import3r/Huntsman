@@ -48,7 +48,7 @@ class Huntsman:
             "httprobe" : HttProbe(operation, self),
             "aquatone" : Aquatone(operation, self),
             "subdomainizer" : Subdomainizer(operation),
-            "gospider" : GoSpider(operation, self.ep_results_dir),
+            "gospider" : GoSpider(operation, self),
             "waybackurls" : Waybackurls(operation, self.ep_results_dir),
             "qsreplace" : QSReplace(operation)
         }
