@@ -1,10 +1,11 @@
 #! /usr/bin/python3
 
 from shutil import which
+import threading
 from packages.install_handler import asset_available
 from packages.asset_modules.chromium_browser import ChromiumBrowser
 from os import chmod, path, makedirs
-from subprocess import Popen, DEVNULL
+from subprocess import Popen, DEVNULL, PIPE
 import zipfile, wget
 
 
@@ -16,7 +17,8 @@ class Aquatone:
     compiled_zip_url = "https://github.com/michenriksen/aquatone/releases/download/v1.7.0/aquatone_linux_amd64_1.7.0.zip"
 
 
-    def __init__(self, operation) -> None:
+    def __init__(self, operation, HM) -> None:
+        self.input_file = HM.base_live_ep_file
         self.inst_tools_dir = operation.inst_tools_dir
         self.paths_file = operation.paths_json_file
         self.asset_path = self.paths_file.read_value(self.asset_name)
@@ -55,12 +57,24 @@ class Aquatone:
             exit()
 
 
-    def screener_proc(self, subdoms_file):
-        return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=open(subdoms_file, 'r'), stdout=DEVNULL)
+    def screener_proc(self):
+        return Popen(f"{self.asset_path} -scan-timeout 500 -threads 1 -out {self.output_dir}", shell = True, stdin=PIPE, stdout=DEVNULL)
 
 
-    def thread_handler(self, subdoms_file):
+    def thread_handler(self):
         print("[+] Firing 'Aquatone' to screen web apps...")
-        aquatone_proc = self.screener_proc(subdoms_file)
-        aquatone_proc.wait()
+        with open(self.input_file) as f:
+            aquatone_stdin = f.read().encode('utf-8')
+        if aquatone_stdin:
+            aquatone_proc = self.screener_proc()
+            aquatone_proc.communicate(input=aquatone_stdin)
+        else:
+            print("[!] No web apps for Aquatone to screen", sep='\n\n')
         print("[+] Aquatone screening completed...")
+        print("[+] 'HUNTSMAN' sequence in progress...\n\n")
+
+
+    def activate(self):
+        hound_thread = threading.Thread(target=self.thread_handler)
+        hound_thread.start()
+        return hound_thread

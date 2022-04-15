@@ -46,7 +46,7 @@ class Huntsman:
             "assetfinder" : AssetFinder(operation, self.subdom_results_dir),
             "dns_resolvers_ip_list" : DNSResolversList(operation),
             "httprobe" : HttProbe(operation, self),
-            "aquatone" : Aquatone(operation),
+            "aquatone" : Aquatone(operation, self),
             "subdomainizer" : Subdomainizer(operation),
             "gospider" : GoSpider(operation, self.ep_results_dir),
             "waybackurls" : Waybackurls(operation, self.ep_results_dir),
