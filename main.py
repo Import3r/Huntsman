@@ -37,9 +37,9 @@ def main():
     HM.release_batch(hound_batch)
     HM.merge_outfiles(hound_batch, HM.raw_subdom_file)
 
-    HM.release_batch({"massdns"})  # resolve collected raw subdomains
+    HM.release_batch({"massdns", "waybackurls"})  # Change waybackurls to have a different thread path (takes too long)
     HM.release_batch({"httprobe"})  # filter resolved subdomains with live web apps
-    HM.release_batch({"aquatone"}) # Add wayback here
+    HM.release_batch({"aquatone"})
     HM.release_batch({"gospider"})
 
     print("[+] 'HUNTSMAN' sequence completed")
