@@ -50,7 +50,7 @@ class Huntsman:
             "subdomainizer" : Subdomainizer(operation),
             "gospider" : GoSpider(operation, self),
             "waybackurls" : Waybackurls(operation, self),
-            "qsreplace" : QSReplace(operation)
+            "qsreplace" : QSReplace(operation, self)
         }
         self.hounds["massdns"] = MassDNS(operation, self.hounds["dns_resolvers_ip_list"], self.raw_subdom_file ,self.resolved_subdom_file)
 

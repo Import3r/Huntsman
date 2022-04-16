@@ -56,7 +56,8 @@ def main():
     thread_pool.clear()
 
     HM.merge_outfiles({"gospider", "waybackurls"}, HM.raw_ep_file)
-    
+    HM.activate_hound("qsreplace").join()  # remove redundant endpoints from raw endpoints
+
     print("[+] 'HUNTSMAN' sequence completed")
     time.sleep(2)
 
