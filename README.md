@@ -36,7 +36,7 @@ xargs -r -a apt_packages.txt sudo apt-get install -y
 - Run "Huntsman":
 
 ```bash
-python3 Huntsman.py
+python3 main.py
 ```
 
 Note: running "Huntsman" for the first time may trigger the installer prompt for missing tools.
